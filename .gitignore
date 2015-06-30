@@ -57,6 +57,8 @@ docs/_build/
 target/
 
 # Project datafiles
+*.bin
+*.tmp
 *.dat
 *.hdf5
 *.vtu
