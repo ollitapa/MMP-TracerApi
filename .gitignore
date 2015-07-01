@@ -68,3 +68,4 @@ target/
 *.db
 MieDataFiles
 Geometry.stl
+Tests/plotRandomExEm.py
