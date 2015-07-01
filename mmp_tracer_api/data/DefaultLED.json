@@ -1,0 +1,217 @@
+{
+    "general": {
+        "maxIterations": 1000,
+        "maxThreads": 10
+    },
+    "sources": [{
+        "name": "Source1",
+        "type": "IsotropicVolume",
+        "rays": 100,
+        "insideOf": "ChipActive",
+        "wavelengths": [450],
+        "intensities": [1]
+    }],
+    "geometry": [{
+            "name": "Air",
+            "location": [
+                0,
+                0,
+                0
+            ],
+            "type": "Sphere",
+            "radius": 100,
+            "material": "Air",
+            "insideof": "None",
+            "surfaceProperties": [],
+            "detectors": [{
+                "type": "AllDetector",
+                "name": "LEDLayerNoSilicone"
+            }]
+        }, {
+            "name": "Case",
+            "type": "Cuboid",
+            "wx": 4,
+            "wy": 4,
+            "wz": 2,
+            "location": [
+                0,
+                0,
+                0
+            ],
+            "material": "WhiteSilicone",
+            "insideof": "Air",
+            "origin": "BaseCenter"
+        }, {
+            "name": "Kartio",
+            "location": [
+                0,
+                0,
+                1
+            ],
+            "axialDirection": [
+                0,
+                0,
+                1
+            ],
+            "type": "Cone",
+            "height": 1,
+            "topRadius": 1.5,
+            "bottomRadius": 1.3,
+            "material": "Stuff",
+            "insideof": "Case",
+            "surfaceProperties": [{
+                "type": "Absorption",
+                "name": "absooorb",
+                "absorptionCoefficient": 0.03,
+                "attachedTo": [
+                    0,
+                    2
+                ],
+                "SaveAbsorptionDistribution": true
+            }, {
+                "type": "Isotropic",
+                "name": "siropinta",
+                "attachedTo": [
+                    2
+                ]
+            }, {
+                "type": "Mirror",
+                "name": "peili",
+                "attachedTo": [
+                    0
+                ]
+            }]
+        }, {
+            "name": "ChipSubstrate",
+            "type": "Cuboid",
+            "wx": 0.5,
+            "wy": 0.5,
+            "wz": 0.1,
+            "location": [
+                0,
+                0,
+                1
+            ],
+            "material": "Sapphire",
+            "insideof": "Kartio",
+            "origin": "BaseCenter",
+            "surfaceProperties": [{
+                "type": "Absorption",
+                "name": "absooorb",
+                "absorptionCoefficient": 0.1,
+                "attachedTo": [
+                    4
+                ],
+                "SaveAbsorptionDistribution": true
+            }, {
+                "type": "Isotropic",
+                "name": "siropinta",
+                "attachedTo": [
+                    4
+                ]
+            }]
+        }, {
+            "name": "ChipP",
+            "type": "Cuboid",
+            "wx": 0.5,
+            "wy": 0.5,
+            "wz": 0.01,
+            "location": [
+                0,
+                0,
+                1.1
+            ],
+            "material": "GaN",
+            "insideof": "Kartio",
+            "origin": "BaseCenter",
+            "surfaceProperties": [{
+                "type": "IsotropicTransparent",
+                "name": "siropinta",
+                "attachedTo": [
+                    0, 1, 2, 3
+                ]
+            }]
+        }, {
+            "name": "ChipActive",
+            "type": "Cuboid",
+            "wx": 0.5,
+            "wy": 0.5,
+            "wz": 0.01,
+            "location": [
+                0,
+                0,
+                1.11
+            ],
+            "material": "InGaN",
+            "insideof": "Kartio",
+            "origin": "BaseCenter",
+            "surfaceProperties": [{
+                "type": "IsotropicTransparent",
+                "name": "siropinta",
+                "attachedTo": [
+                    0, 1, 2, 3
+                ]
+            }]
+        }, {
+            "name": "ChipN",
+            "type": "Cuboid",
+            "wx": 0.5,
+            "wy": 0.5,
+            "wz": 0.01,
+            "location": [
+                0,
+                0,
+                1.12
+            ],
+            "material": "GaN",
+            "insideof": "Kartio",
+            "origin": "BaseCenter",
+            "surfaceProperties": [{
+                "type": "IsotropicTransparent",
+                "name": "siropinta",
+                "attachedTo": [
+                    0, 1, 2, 3
+                ]
+            }]
+        }
+
+    ],
+    "materials": [{
+        "name": "Air",
+        "type": "Clear",
+        "refractiveIndex": 1.0
+    }, {
+        "name": "WhiteSilicone",
+        "type": "Opaque"
+    }, {
+        "name": "Sapphire",
+        "type": "Clear",
+        "refractiveIndex": 1.77
+    }, {
+        "type": "GeneralFluorescence",
+        "name": "Stuff",
+        "phosphorEfficiencies": [
+            0.90
+        ],
+        "particleDensities": [
+            5e-05
+        ],
+        "distributionData": "mieData.hdf5",
+        "refractiveIndex": 1.55,
+        "excitationSpectrumFilenames": ["EX_GREEN.dat"],
+        "cumulativeEmissionSpectrumFilenames": ["InvCumul_EM_GREEN.dat"],
+        "absorptionSpectrumFilenames": ["Abs_GREEN.dat"],
+        "saveAbsorptionDistribution": true,
+        "numberOfFluorescentParticles": 1,
+        "exAndEmDataOffsets": [1],
+        "multipleFluorescence": false
+    }, {
+        "name": "InGaN",
+        "type": "Clear",
+        "refractiveIndex": 2.59
+    }, {
+        "name": "GaN",
+        "type": "Clear",
+        "refractiveIndex": 2.4
+    }]
+}

@@ -67,3 +67,4 @@ target/
 *.mphtxt
 *.db
 MieDataFiles
+Geometry.stl
