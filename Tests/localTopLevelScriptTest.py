@@ -100,6 +100,7 @@ if __name__ == '__main__':
     comsolApp.solveStep(0)
 
     # Plot data to file
+    logger.info("Saving vtk")
     v = fTemp.field2VTKData()
     v.tofile('testTemperature.vtk')
     v = fHeat.field2VTKData()

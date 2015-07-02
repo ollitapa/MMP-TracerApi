@@ -9,6 +9,7 @@ API for a raytracer for the mupif of MMP project
 * Pyro4
 * mupif (https://sourceforge.net/projects/mupif/)
 * MMP-MieAPI (https://github.com/ollitapa/MMP-MieApi)
+* mmp_raytracer (Currently available only by asking the developers. The API will run without it, but will not produce any results)
 
 All can be installed from PYPI using ```pip install <pakage>```. For windows good repository for binaries is at http://www.lfd.uci.edu/~gohlke/pythonlibs/ They are also installed using ```pip```.
 

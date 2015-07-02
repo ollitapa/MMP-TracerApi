@@ -17,6 +17,15 @@
 import numpy as np
 import os
 from mupif import APIError
+from pkg_resources import resource_filename
+import logging
+import logging.config
+
+
+# create logger
+logging.config.fileConfig(resource_filename(__name__, 'data/logging.conf'),
+                          disable_existing_loggers=False)
+logger = logging.getLogger('mmpraytracer')
 
 
 def readAbsorptionData(filepath):
@@ -43,18 +52,18 @@ def readAbsorptionData(filepath):
     # read values from AbsorptionData.vtk file:
     try:
         if os.path.getsize(filepath) > 500000000:
-            print("file size >500MB")
+            logger.warn("file size >500MB")
             raise IOError
         absfile = open(filepath, 'rb')
         filecontents = absfile.read()
         if not filecontents:
-            print("file is empty!")
+            logger.warn("file is empty!")
             raise IOError
         lines = filecontents.splitlines()
     except IOError as e:
-        print("error reading file, returning empty absorption data")
+        logger.warn("error reading file, returning empty absorption data")
         points = ()  # tuple () or list []?
-        absorption = np.array(None)
+        absorption = np.array([])
         return(points, absorption)
 
     index = 0
@@ -64,70 +73,70 @@ def readAbsorptionData(filepath):
             for item in pieces:
                 if item.strip().startswith("NumberOfPoints="):
                     nPoints = int(item.split("\"")[1])
-                    print('nPoints = ', nPoints)
+                    # print('nPoints = ', nPoints)
                 elif item.strip().startswith("NumberOfLines"):
                     nLines = int(item.split("\"")[1])
-                    print('nLines = ', nLines)
+                    # print('nLines = ', nLines)
                 elif item.strip().startswith("NumberOfVerts"):
                     nVerts = int(item.split("\"")[1])
-                    print('nVerts = ', nVerts)
+                    # print('nVerts = ', nVerts)
                 elif item.strip().startswith("NumberOfStrips"):
                     nStrips = int(item.split("\"")[1])
-                    print('nStrips = ', nStrips)
+                    # print('nStrips = ', nStrips)
                 elif item.strip().startswith("NumberOfPolys"):
                     nPolys = int(item.split("\"")[1])
-                    print('nPolys = ', nPolys)
+                    # print('nPolys = ', nPolys)
         elif line.strip().startswith('<Points'):
             # read the offset for data from the next line:
-            print('<Points> line index = ', index, lines[index])
+            # print('<Points> line index = ', index, lines[index])
             pieces = lines[index + 1].split()
             for item in pieces:
                 if item.strip().startswith("offset="):
                     dataoffset = int(item.split("\"")[1])
-                    print('dataoffset = ', dataoffset)
+                    # print('dataoffset = ', dataoffset)
                 elif item.strip().startswith("NumberOfComponents"):
                     nComponents = int(item.split("\"")[1])
-                    print('nComponents = ', nComponents)
+                    # print('nComponents = ', nComponents)
                 elif item.strip().startswith("type"):
                     datatype = item.split("\"")[1]
-                    print('datatype = ', datatype)
+                    # print('datatype = ', datatype)
                 elif item.strip().startswith("format"):
                     dataformat = item.split("\"")[1]
-                    print('dataformat = ', dataformat)
+                    # print('dataformat = ', dataformat)
         elif line.strip().startswith('<PointData'):
             # TODO: read Scalars="Absorption"?
             # read the offset and name for PointData from the next line:
-            print('<PointData> line index = ', index, lines[index])
+            # print('<PointData> line index = ', index, lines[index])
             pieces = lines[index + 1].split()
             for item in pieces:
                 if item.strip().startswith("offset="):
                     pointdataoffset = int(item.split("\"")[1])
-                    print('pointdataoffset = ', pointdataoffset)
+                    # print('pointdataoffset = ', pointdataoffset)
                 elif item.strip().startswith("NumberOfComponents"):
                     nPointComponents = int(item.split("\"")[1])
-                    print('nPointComponents = ', nPointComponents)
+                    # print('nPointComponents = ', nPointComponents)
                 elif item.strip().startswith("type"):
                     pointdatatype = item.split("\"")[1]
-                    print('pointdatatype = ', pointdatatype)
+                    # print('pointdatatype = ', pointdatatype)
                 elif item.strip().startswith("format"):
                     pointdataformat = item.split("\"")[1]
-                    print('pointdataformat = ', pointdataformat)
+                    # print('pointdataformat = ', pointdataformat)
                 elif item.strip().startswith("Name"):
                     pointdataname = item.split("\"")[1]
-                    print('pointdataname = ', pointdataname)
+                    # print('pointdataname = ', pointdataname)
 
         elif line.strip().startswith('<AppendedData'):
             # read the appended data
-            print('<AppendedData> line index = ', index, lines[index])
+            # print('<AppendedData> line index = ', index, lines[index])
             pieces = line.split()
             for item in pieces:
                 if item.strip().startswith("encoding"):
                     encoding = item.split("\"")[1]
-                    print('encoding = ', encoding)
+                    # print('encoding = ', encoding)
             if lines[index + 1].strip().startswith("_"):
                 binarydatastartindex = index + 1
                 # , lines[binarydatastartindex])
-                print('binarydatastartindex=', binarydatastartindex)
+                # print('binarydatastartindex=', binarydatastartindex)
             # AppendedData is the last text line... finish for loop
             # and start reading binary data bytes
             break
@@ -139,20 +148,20 @@ def readAbsorptionData(filepath):
     absfile.seek(0)
     for x in range(0, binarydatastartindex):
         line = absfile.readline()
-    print('line=', line)  # <AppendedData encoding="raw">
+    # print('line=', line)  # <AppendedData encoding="raw">
     # print(vtpfile.tell())
 
     byte = absfile.read(1)  # read until '_'
     while byte != '_':
         byte = absfile.read(1)
-    print('byte=', byte, absfile.tell())
+    # print('byte=', byte, absfile.tell())
 
     binaryoffset = absfile.tell()
-    print('binaryoffset=', binaryoffset, 'dataoffset=', dataoffset)
+    # print('binaryoffset=', binaryoffset, 'dataoffset=', dataoffset)
     absfile.seek(binaryoffset + dataoffset, 0)  # dataoffset==0
 
     pointsize = np.fromfile(absfile, dtype=np.dtype('<u8'), count=1, sep="")
-    print('pointsize = ', pointsize, absfile.tell())
+    # print('pointsize = ', pointsize, absfile.tell())
     #pointsize = struct.unpack('>Q', vtpfile.read(8))[0]
     if(pointsize / 3 / 8 != nPoints):
         raise APIError.APIError('Number of Points does not match')
@@ -170,11 +179,11 @@ def readAbsorptionData(filepath):
 
     #print(x, absfile.tell(), absvalueX, absvalueY, absvalueZ)
 
-    print('bytes of file read after Points: ', absfile.tell())
+    # print('bytes of file read after Points: ', absfile.tell())
 
     # read Absorption:
     abssize = np.fromfile(absfile, dtype=np.dtype('<u8'), count=1, sep="")
-    print('abssize=', abssize / 8)
+    # print('abssize=', abssize / 8)
     # if abssize/8 != nLines:
     #    raise APIError.APIError('Number of abs does not match')
     absvalues = []
@@ -182,28 +191,21 @@ def readAbsorptionData(filepath):
         #absvalues.append(struct.unpack('<d', absfile.read(8))[0])
         absvalues.append(
             np.fromfile(absfile, dtype=np.dtype('<f8'), count=1)[0])
-    #print(x, absfile.tell(), absvalues)
+    # print(x, absfile.tell(), absvalues)
 
-    print('bytes of file read after Absorption: ', absfile.tell())
+    # print('bytes of file read after Absorption: ', absfile.tell())
 
     remaining = absfile.read(
         os.fstat(absfile.fileno()).st_size - absfile.tell())
-    print('remaining=', remaining)
-
-    # TODO: Write!
+    # print('remaining=', remaining)
 
     pointlist = []
     for x in range(0, nPoints):
-        pointlist.append(np.array([absvalueX[x], absvalueY[x], absvalueZ[x]]))
+        pointlist.append(([absvalueX[x], absvalueY[x], absvalueZ[x]]))
 
-    points = tuple(pointlist)  # create tuple from list?
     absorption = np.array(absvalues)
-    """
-    points = [np.array([0, 0, 0]), np.array([0, 1, 0]), np.array([0, 0, 1])]
-    absorption = np.array([1, 2, 3])
-    """
 
-    return(points, absorption)
+    return(pointlist, absorption)
 
 
 def readLineData(filepath):
