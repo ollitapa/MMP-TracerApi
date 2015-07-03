@@ -308,6 +308,7 @@ class MMPRaytracer(Application):
         self.postThread = threading.Thread(target=self._runCallback,
                                            args=(self.tracerProcess,
                                                  self._tracerProcessEnded))
+        # Post processing thread will wait for the tracer to finnish
         self.postThread.start()
 
         # Wait for process if applicaple
@@ -342,7 +343,7 @@ class MMPRaytracer(Application):
 
         :param TimeStep tstep: Solution step
         """
-        # TODO: What the hell should be done here?
+        # TODO: What should be done here?
 
     def getCriticalTimeStep(self):
         """
@@ -371,12 +372,14 @@ class MMPRaytracer(Application):
 
         :param TimeStep tstep: Solution step
         """
+        # TODO: Is this possible on our case?
 
     def restoreState(self, tstep):
         """
         Restore the saved state of an application.
         :param TimeStep tstep: Solution step
         """
+        # TODO: Is this possible on our case?
 
     def getAPIVersion(self):
         """
@@ -453,6 +456,7 @@ class MMPRaytracer(Application):
                 print("unknown property key: ", key[0])
 
         # Datafiles:
+        # TODO: These should also come from properties
         parent = self._jsondata['materials']
         parent[3]["excitationSpectrumFilenames"] = [
             resource_filename(__name__, "data/EX_GREEN.dat")]
@@ -511,7 +515,7 @@ class MMPRaytracer(Application):
         meshS.convertPointDataToMesh(points, absorb, f, inplace=True)
 
         # Read line data (if needed): (TODO: not tested)
-        #(pts, wv, offs) = vtkS.readLineData("ray_paths.vtp")
+        # (pts, wv, offs) = vtkS.readLineData("ray_paths.vtp")
 
     def _runCallback(self, pHandle, callback):
         '''
@@ -546,8 +550,9 @@ class MMPRaytracer(Application):
         dataCDF = cdf.evaluate(None)
 
         # Wavelengths used
-        #key = (PropertyID.PID_LEDSpectrum, objID.OBJ_CHIP_ACTIVE_AREA, 0)
-        #wave = self.properties[key].getValue()['wavelengths']
+        # key = (PropertyID.PID_LEDSpectrum, objID.OBJ_CHIP_ACTIVE_AREA, 0)
+        # wave = self.properties[key].getValue()['wavelengths']
+        # TODO: These should be same with MieAPI!!
         w_max = 1100.0
         w_min = 100.0
         w_num = 10
