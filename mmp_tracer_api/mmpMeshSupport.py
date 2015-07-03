@@ -74,7 +74,8 @@ def convertPointDataToMesh(points, values, field, inplace=True):
         Field where the points have been inserted.
 
     '''
-    logger.debug("Converting point data to mesh...")
+    logger.debug("Converting point data (n=%d) to mesh (cells=%d)..." % (
+        len(points), field.getMesh().getNumberOfCells()))
 
     if not inplace:
         f = Field.Field(field.getMesh(),
@@ -110,5 +111,5 @@ def convertPointDataToMesh(points, values, field, inplace=True):
         else:
             pNfound += 1
 
-    logger.debug("Points not found: %d" % pNfound)
+    logger.debug("Points not found to be in mesh: %d" % pNfound)
     return(f)
