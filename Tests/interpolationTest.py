@@ -103,6 +103,11 @@ if __name__ == '__main__':
         comsolApp.solveStep(t)
 
     fHeat = tracerApp.getField(FieldID.FID_HeatSourceVol, 1.5)
+    pDens = tracerApp.getProperty(propID=PropertyID.PID_ParticleNumberDensity,
+                                  objectID=objID.OBJ_CONE, time=1.5)
+
+    # print('%.10f' % pDens.value)
+
     # Plot data to file
     logger.info("Saving vtk")
     v = fHeat.field2VTKData()
