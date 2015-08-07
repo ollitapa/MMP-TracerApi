@@ -45,7 +45,7 @@ def interpolateFields(fields, time, method='linear'):
 
     # TODO: write!
 
-    return(fields.loc[0])
+    return(fields.iloc[0])
 
 
 def interpolateProperty(properties, time, method='linear'):

@@ -35,6 +35,7 @@ import mmpMeshSupport as meshS
 import hdfSupport as hdfS
 import json
 import initialConfiguration as initConf
+import interpolationSupport as interP
 import objID
 import logging
 import logging.config
@@ -140,13 +141,16 @@ class MMPRaytracer(Application):
         :rtype: Field
         """
 
-        # TODO: Interpolation between timesteps.
         key = (fieldID, time)
-        if key not in self.fields.index:
-            print("Interpolation NOT IMPLEMENTED")
+        field = 0
+        if fieldID not in self.fields.index:
             raise APIError.APIError('Unknown field ID')
+        if time not in self.fields.index:
+            field = interP.interpolateFields(self.fields,
+                                             time, method='linear')
+        else:
+            field = self.fields[key]
 
-        field = self.fields[key]
         # Check if object is registered to Pyro
         if hasattr(self, '_pyroDaemon') and not hasattr(field, '_PyroURI'):
             uri = self._pyroDaemon.register(field)
@@ -289,8 +293,9 @@ class MMPRaytracer(Application):
         # Write out JSON file.
         self._writeInputJSON()
 
-        # Set current tstep
+        # Set current tstep and copy previous results as starting values
         self._curTStep = tstep
+        self._copyPreviousSolution()
 
         # Get mie data from other app
         self._getMieData()
@@ -406,6 +411,26 @@ class MMPRaytracer(Application):
             self.postThread.terminate()
         if self.pyroDaemon:
             self.pyroDaemon.shutdown()
+
+    def _copyPreviousSolution(self):
+        if self._curTStep == 0:
+            return
+
+        # Function for finding closest timestep to current time
+        def closest_floor(arr):
+            tstep = arr.index.get_level_values('tstep')
+            t = self._curTStep - tstep > 0
+            # print(t)
+            return(tstep[t].min())
+
+        # Find closest time and copy fields to current time
+        g = self.fields.groupby(level='fieldID').apply(closest_floor)
+        for fID in g.index:
+            key = (fID, g[fID])
+            newKey = (fID, self._curTStep)
+            self.fields.set_value(newKey, self.fields[key])
+
+        print(self.fields)
 
     def _writeInputJSON(self):
         """
