@@ -147,7 +147,8 @@ class MMPRaytracer(Application):
             raise APIError.APIError('Unknown field ID')
         if time not in self.fields.index:
             field = interP.interpolateFields(self.fields,
-                                             time, method='linear')
+                                             time, fieldID,
+                                             method='linear')
         else:
             field = self.fields[key]
 
