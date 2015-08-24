@@ -15,7 +15,7 @@
 #
 
 import numpy as np
-from meshpy.geometry import generate_extrusion, make_circle, GeometryBuilder
+from meshpy.geometry import generate_extrusion
 from matplotlib import pylab as plt
 from mpl_toolkits.mplot3d import Axes3D
 from meshpy.tet import MeshInfo, build
