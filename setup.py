@@ -18,10 +18,15 @@ from setuptools import setup, find_packages
 
 setup(name='mmp_tracer_api',
       version='0.1',
+      license='Apache-2.0',
       description='API for MMPRaytracer to the MMP modelling platform',
       author='Olli Tapaninen, Mikko Majanen',
       author_email='olli.tapaninen@gmail.com, mikko.majanen@vtt.fi',
       packages=find_packages(),
+      entry_points={
+          'console_scripts':
+          ['runTracerServer = mmp_tracer_api.tracerServer:main']
+      },
       package_data={'mmp_tracer_api':
                     ['data/*.dat',
                      'data/DefaultLED.json',
