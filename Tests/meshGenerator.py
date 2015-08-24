@@ -19,7 +19,6 @@ from mupif import Mesh, Vertex, Cell
 import numpy as np
 from meshpy.geometry import generate_extrusion
 from matplotlib import pylab as plt
-from mpl_toolkits.mplot3d import Axes3D
 
 
 def generateCubeMesh():

@@ -16,11 +16,11 @@
 
 import os
 import sys
-sys.path.append(os.path.abspath('../mmp_tracer_api/'))
+sys.path.append(os.path.abspath('../../mmp_tracer_api/'))
 import meshGenerator as mg
 import numpy as np
 from mmpMeshSupport import convertPointDataToMesh
-from mupif import BBox, Field, FieldID, ValueType
+from mupif import Field, FieldID, ValueType
 from datetime import datetime
 
 import logging

@@ -213,7 +213,8 @@ class MMPRaytracer(Application):
         """
 
         # Set the new property to container
-        key = (newProp.propID, newProp.objectID, newProp.time)
+        key = (newProp.getPropertyID(), newProp.objectID, newProp.time)
+
         self.properties.set_value(key, newProp)
 
     def getFunction(self, funcID, objectID=0):
