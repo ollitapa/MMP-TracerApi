@@ -35,6 +35,7 @@ import mmpMeshSupport as meshS
 import hdfSupport as hdfS
 import json
 import initialConfiguration as initConf
+import interpolationSupport as interP
 import objID
 import logging
 import logging.config
@@ -92,7 +93,7 @@ class MMPRaytracer(Application):
         # Containers
         # Properties
         # Key should be in form of tuple (propertyID, objectID, tstep)
-        idx = pd.MultiIndex.from_tuples(['aaa'],
+        idx = pd.MultiIndex.from_tuples([(0.1, 0.1, 0.1)],
                                         names=['propertyID',
                                                'objectID',
                                                'tstep'])
@@ -140,13 +141,17 @@ class MMPRaytracer(Application):
         :rtype: Field
         """
 
-        # TODO: Interpolation between timesteps.
         key = (fieldID, time)
-        if key not in self.fields.index:
-            print("Interpolation NOT IMPLEMENTED")
+        field = 0
+        if fieldID not in self.fields.index:
             raise APIError.APIError('Unknown field ID')
+        if time not in self.fields.index:
+            field = interP.interpolateFields(self.fields,
+                                             time, fieldID,
+                                             method='linear')
+        else:
+            field = self.fields[key]
 
-        field = self.fields[key]
         # Check if object is registered to Pyro
         if hasattr(self, '_pyroDaemon') and not hasattr(field, '_PyroURI'):
             uri = self._pyroDaemon.register(field)
@@ -178,13 +183,18 @@ class MMPRaytracer(Application):
         :rtype: Property
         """
         key = (propID, objectID, time)
-        if key not in self.properties.index:
-            print("Interpolation NOT IMPLEMENTED")
+        if propID not in self.properties.index:
+
             raise APIError.APIError('Unknown property ID')
 
-        # TODO: Interpolation between timesteps.
-
-        prop = self.properties[key]
+        if time not in self.properties.index:
+            prop = interP.interpolateProperty(self.properties,
+                                              time=time,
+                                              propertyID=propID,
+                                              objectID=objectID,
+                                              method='linear')
+        else:
+            prop = self.properties[key]
 
         # Check pyro registering if applicaple
         if hasattr(self, '_pyroDaemon') and not hasattr(prop, '_PyroURI'):
@@ -203,7 +213,8 @@ class MMPRaytracer(Application):
         """
 
         # Set the new property to container
-        key = (newProp.getPropertyID(), objectID, newProp.time)
+        key = (newProp.getPropertyID(), newProp.objectID, newProp.time)
+
         self.properties.set_value(key, newProp)
 
     def getFunction(self, funcID, objectID=0):
@@ -289,8 +300,9 @@ class MMPRaytracer(Application):
         # Write out JSON file.
         self._writeInputJSON()
 
-        # Set current tstep
+        # Set current tstep and copy previous results as starting values
         self._curTStep = tstep
+        self._copyPreviousSolution()
 
         # Get mie data from other app
         self._getMieData()
@@ -406,6 +418,47 @@ class MMPRaytracer(Application):
             self.postThread.terminate()
         if self.pyroDaemon:
             self.pyroDaemon.shutdown()
+
+    def _copyPreviousSolution(self):
+        if self._curTStep == 0:
+            return
+
+        # Function for finding closest timestep to current time
+        def closest_floor(arr):
+            tstep = arr.index.get_level_values('tstep')
+            t = self._curTStep - tstep > 0
+            # print(t)
+            return(tstep[t].min())
+
+        # Find closest time and copy fields to current time
+        g = self.fields.groupby(level='fieldID').apply(closest_floor)
+        for fID in g.index:
+            key = (fID, g[fID])
+            newKey = (fID, self._curTStep)
+            f = self.fields[key]
+            newField = Field.Field(f.mesh,
+                                   f.fieldID,
+                                   f.valueType,
+                                   units=f.units,
+                                   values=f.values,
+                                   time=self._curTStep,
+                                   fieldType=f.fieldType)
+            self.fields.set_value(newKey, newField)
+
+        # Find closest time and copy properties to current time
+        g = self.properties.groupby(level=('propertyID',
+                                           'objectID')).apply(closest_floor)
+        for pID in g.index:
+            key = (pID[0], pID[1], g[pID])
+            newKey = (pID[0], pID[1], self._curTStep)
+            p = self.properties[key]
+            newProp = Property.Property(value=p.value,
+                                        propID=p.propID,
+                                        valueType=p.valueType,
+                                        time=self._curTStep,
+                                        units=p.units,
+                                        objectID=p.objectID)
+            self.properties.set_value(newKey, newProp)
 
     def _writeInputJSON(self):
         """
