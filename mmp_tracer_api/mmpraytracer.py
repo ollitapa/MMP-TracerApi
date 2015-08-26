@@ -86,8 +86,9 @@ class MMPRaytracer(Application):
 
     _curTStep = -1
 
-    def __init__(self, file):
-        super(MMPRaytracer, self).__init__(file)  # call base
+    def __init__(self, file, workdir=''):
+        super(MMPRaytracer, self).__init__(file, workdir)  # call base
+        os.chdir(workdir)
         # logger.warn('Testi!!!!!')
 
         # Containers
