@@ -66,6 +66,7 @@ target/
 *.vtk
 *.mphtxt
 *.db
+*.json
 MieDataFiles
 Geometry.stl
 Tests/plotRandomExEm.py

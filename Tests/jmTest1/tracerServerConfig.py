@@ -11,13 +11,13 @@ hkey = 'mmp-secret-key'
 
 serverConfigPath = os.getcwd()
 
-nshost = '147.32.130.137'  # NameServer - do not change
+nshost = 'localhost'  # NameServer - do not change
 nsport = 9090  # NameServer's port - do not change
 hkey = 'mmp-secret-key'  # Password for accessing nameServer and applications
 nathost = 'localhost'  # NatHost of local computer - do not change
 
 daemonHost = 'localhost'  # '147.32.130.137'#IP of server
-hostUserName = 'mmp'  # User name for ssh connection
+hostUserName = 'otolli'  # User name for ssh connection
 
 jobManPort = 44362  # Port for job manager's daemon
 jobManNatport = 5557  # Natport - nat port used in ssh tunnel for job manager
@@ -34,6 +34,6 @@ jobManMaxJobs = 4  # Maximum number of jobs
 jobManWorkDir = os.path.abspath(os.path.join(os.getcwd(), 'jobManWorkDir'))
 
 # path to JobMan2cmd.py
-jobMan2CmdPath = os.path.join(os.path.dirname(mupif.__file__),
-                              'tools', 'JobMan2cmd.py')
-jobMan2CmdPath = "tools/JobMan2cmd.py"
+# jobMan2CmdPath = os.path.join(os.path.dirname(mupif.__file__),
+#                             'tools', 'JobMan2cmd.py')
+jobMan2CmdPath = "C:\\Python27\\Scripts\\JobMan2cmd-script.py"
