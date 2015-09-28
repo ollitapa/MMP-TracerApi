@@ -33,5 +33,9 @@ def main():
                 print(pinfo)
                 psutil.Process(pinfo['pid']).kill()
                 print('killed!')
+            elif pinfo['name'].find('jobMan2cmd') != -1:
+                print(pinfo)
+                psutil.Process(pinfo['pid']).kill()
+                print('killed!')
     print('done!')
     print('####################################')
