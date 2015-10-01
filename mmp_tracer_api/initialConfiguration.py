@@ -31,7 +31,7 @@ def checkRequiredFields(fields,  fID=FieldID):
         print("HeatSourceVol not found!")
         #found = False
 
-    if found == False:
+    if not found:
         print("not all relevant fields found!")
         raise APIError.APIError("not all relevant fields found!")
 
@@ -70,36 +70,20 @@ def checkRequiredParameters(props, pID=PropertyID):
     if pID.PID_ParticleRefractiveIndex not in props.index:
         print("ParticleRefractiveIndex not found!")
         #found = False
+    if pID.PID_InverseCumulativeDist not in props.index:
+        print("InverseCumulativeDist not found!")
+        #found = False
+    if pID.PID_ScatteringCrossSections not in props.index:
+        print("ScatteringCrossSections not found!")
+        #found = False
 
-    if found == False:
+    if found is False:
         print("not all relevant parameters found!")
         raise APIError.APIError("not all relevant properties found!")
 
 
 def checkRequiredFunctions(funcs, fID=FunctionID):
-    # TODO: Check!
-
-    found = True
-
-    try:
-        f = funcs[(fID.FuncID_ScatteringCrossSections, 0)]  # key=[FID, ObjID?]
-        g = funcs[(fID.FuncID_ScatteringInvCumulDist, 0)]
-    except KeyError as e:
-        print("not all functions found")
-        #found = False
-
-    """
-    if FunctionID.FuncID_ScatteringCrossSections not in funcs.index:
-        print("ScatteringCrossSection not found!")
-        found = False
-    if FunctionID.FuncID_ScatteringInvCumulDist not in funcs.index:
-        print("ScatteringInvCumulDist not found!")
-        found = False
-    """
-
-    if found == False:
-        print("not all relevant functions found!")
-        raise APIError.APIError("not all relevant functions found!")
+    pass
 
 
 def initialFunc(funcs, json, fID=FunctionID):

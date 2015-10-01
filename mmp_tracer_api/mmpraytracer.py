@@ -63,6 +63,9 @@ PropertyID.PID_LEDSpectrum = 24
 PropertyID.PID_ParticleNumberDensity = 25
 PropertyID.PID_ParticleRefractiveIndex = 26
 
+PropertyID.PID_ScatteringCrossSections = 28
+PropertyID.PID_InverseCumulativeDist = 29
+
 FieldID.FID_HeatSourceVol = 33
 ##########################################################
 
@@ -218,42 +221,6 @@ class MMPRaytracer(Application):
 
         self.properties.set_value(key, newProp)
 
-    def getFunction(self, funcID, objectID=0):
-        """
-        Returns function identified by its ID
-
-        :param FunctionID funcID: function ID
-        :param int objectID: Identifies optional object/submesh on which
-               property is evaluated (optional, default 0)
-
-        :return: Returns requested function
-        :rtype: Function
-        """
-        key = (funcID, objectID)
-        if key not in self.functions.index:
-            raise APIError.APIError('Unknown function ID')
-
-        func = self.functions[key]
-
-        # Chek if object is registered to Pyro
-        if hasattr(self, '_pyroDaemon') and not hasattr(func, '_PyroURI'):
-            uri = self._pyroDaemon.register(func)
-            func._PyroURI = uri
-
-        return(func)
-
-    def setFunction(self, func, objectID=0):
-        """
-        Register given function in the application
-
-        :param Function func: Function to register
-        :param int objectID: Identifies optional object/submesh on
-               which property is evaluated (optional, default 0)
-        """
-        # Set the new property to container
-        key = (func.getID(), objectID)
-        self.functions[key] = func
-
     def getMesh(self, tstep):
         """
         Returns the computational mesh for given solution step.
@@ -306,7 +273,7 @@ class MMPRaytracer(Application):
         self._copyPreviousSolution()
 
         # Get mie data from other app
-        self._getMieData()
+        self._getMieData(tstep)
 
         # Start thread to start calculation
         self.tracerProcess = Popen(  # ["ping", "127.0.0.1",  "-n",
@@ -589,19 +556,22 @@ class MMPRaytracer(Application):
         callback(lines)
         return
 
-    def _getMieData(self):
+    def _getMieData(self, tstep):
 
         logger.debug("Getting mie data...")
 
-        # Functions where to get the mie data
-        key = (FunctionID.FuncID_ScatteringCrossSections, 0)
-        scat = self.functions[key]
-        key = (FunctionID.FuncID_ScatteringInvCumulDist, 0)
-        cdf = self.functions[key]
+        # Get the Mie data
+        key = (PropertyID.PID_ScatteringCrossSections,
+               objID.OBJ_PARTICLE_TYPE_1,
+               tstep)
 
-        # Get the data
-        dataScat = scat.evaluate(None)
-        dataCDF = cdf.evaluate(None)
+        dataScat = self.properties[key].values
+
+        key = (PropertyID.PID_InverseCumulativeDist,
+               objID.OBJ_PARTICLE_TYPE_1,
+               tstep)
+
+        dataCDF = self.properties[key].values
 
         # Wavelengths used
         # key = (PropertyID.PID_LEDSpectrum, objID.OBJ_CHIP_ACTIVE_AREA, 0)
