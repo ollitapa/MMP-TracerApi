@@ -97,15 +97,15 @@ class MMPRaytracer(Application):
         # Containers
         # Properties
         # Key should be in form of tuple (propertyID, objectID, tstep)
-        idx = pd.MultiIndex.from_tuples([(0.1, 0.1, 0.1)],
+        idx = pd.MultiIndex.from_tuples([(1.0, 1.0, 1.0)],
                                         names=['propertyID',
                                                'objectID',
                                                'tstep'])
-        self.properties = pd.Series(index=idx)
+        self.properties = pd.Series(index=idx, dtype=Property.Property)
 
         # Fields
         # Key should be in form of tuple (fieldID, tstep)
-        idxf = pd.MultiIndex.from_tuples([(1, 1)],
+        idxf = pd.MultiIndex.from_tuples([(1.0, 1.0)],
                                          names=['fieldID', 'tstep'])
         self.fields = pd.Series(index=idxf, dtype=Field.Field)
 
@@ -171,6 +171,7 @@ class MMPRaytracer(Application):
         """
 
         # Set the new property to container
+        print(field)
         key = (field.getFieldID(), field.time)
         self.fields.set_value(key, field)
 
@@ -217,9 +218,13 @@ class MMPRaytracer(Application):
         """
 
         # Set the new property to container
+        print('Jooo')
+        print(newProp)
         key = (newProp.getPropertyID(), newProp.objectID, newProp.time)
+        print('Jeee')
 
         self.properties.set_value(key, newProp)
+        print('Juuu')
 
     def getMesh(self, tstep):
         """
