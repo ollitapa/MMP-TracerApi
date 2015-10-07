@@ -67,6 +67,7 @@ PropertyID.PID_ScatteringCrossSections = 28
 PropertyID.PID_InverseCumulativeDist = 29
 
 FieldID.FID_HeatSourceVol = 33
+FieldID.FID_HeatSourceSurf = 33
 ##########################################################
 
 ### Function IDs until implemented at mupif ###
@@ -157,9 +158,9 @@ class MMPRaytracer(Application):
             field = self.fields[key]
 
         # Check if object is registered to Pyro
-        if hasattr(self, '_pyroDaemon') and not hasattr(field, '_PyroURI'):
-            uri = self._pyroDaemon.register(field)
-            field._PyroURI = uri
+        # if hasattr(self, '_pyroDaemon') and not hasattr(field, '_PyroURI'):
+        #    uri = self._pyroDaemon.register(field)
+        #    field._PyroURI = uri
 
         return(field)
 
@@ -202,9 +203,9 @@ class MMPRaytracer(Application):
             prop = self.properties[key]
 
         # Check pyro registering if applicaple
-        if hasattr(self, '_pyroDaemon') and not hasattr(prop, '_PyroURI'):
-            uri = self._pyroDaemon.register(prop)
-            prop._PyroURI = uri
+        # if hasattr(self, '_pyroDaemon') and not hasattr(prop, '_PyroURI'):
+        #    uri = self._pyroDaemon.register(prop)
+        #    prop._PyroURI = uri
 
         return(prop)
 
@@ -218,13 +219,8 @@ class MMPRaytracer(Application):
         """
 
         # Set the new property to container
-        print('Jooo')
-        print(newProp)
         key = (newProp.getPropertyID(), newProp.objectID, newProp.time)
-        print('Jeee')
-
         self.properties.set_value(key, newProp)
-        print('Juuu')
 
     def getMesh(self, tstep):
         """
@@ -271,7 +267,7 @@ class MMPRaytracer(Application):
         initConf.checkRequiredFunctions(self.functions, fID=FunctionID)
 
         # Write out JSON file.
-        self._writeInputJSON()
+        self._writeInputJSON(tstep)
 
         # Set current tstep and copy previous results as starting values
         self._curTStep = tstep
@@ -433,7 +429,7 @@ class MMPRaytracer(Application):
                                         objectID=p.objectID)
             self.properties.set_value(newKey, newProp)
 
-    def _writeInputJSON(self):
+    def _writeInputJSON(self, tstep):
         """
         Writes input JSON for the raytracer.
         The fields and parameters should be accessible before
@@ -453,16 +449,21 @@ class MMPRaytracer(Application):
             # print(key)
             prop = self.properties[key]
 
-            if(key[0] == PropertyID.PID_RefractiveIndex):
+            if(key[0] == PropertyID.PID_RefractiveIndex and
+               key[2] == tstep):
                 print("PID_RefractiveIndex, ", prop.getValue())
                 parent = self._jsondata['materials']
                 parent[1]["refractiveIndex"] = prop.getValue()
-            elif(key[0] == PropertyID.PID_NumberOfRays):
+
+            elif(key[0] == PropertyID.PID_NumberOfRays and
+                 key[2] == tstep):
                 print("PID_NumberOfRays, ", prop.getValue())
                 parent = self._jsondata['sources']
                 for item in parent:
                     item["rays"] = prop.getValue()
-            elif(key[0] == PropertyID.PID_LEDSpectrum):
+
+            elif(key[0] == PropertyID.PID_LEDSpectrum and
+                 key[2] == tstep):
                 print("PID_LEDSpectrum, ", prop.getValue())
                 parent = self._jsondata['sources']
                 for item in parent:
@@ -470,14 +471,19 @@ class MMPRaytracer(Application):
                         "wavelengths"].tolist()
                     item["intensities"] = prop.getValue()[
                         "intensities"].tolist()
-            elif(key[0] == PropertyID.PID_ParticleNumberDensity):
+
+            elif(key[0] == PropertyID.PID_ParticleNumberDensity and
+                 key[2] == tstep):
                 print("PID_ParticleNumberDensity, ", prop.getValue())
                 parent = self._jsondata['materials']
                 parent[3]["particleDensities"] = [prop.getValue()]
-            elif(key[0] == PropertyID.PID_ParticleRefractiveIndex):
+
+            elif(key[0] == PropertyID.PID_ParticleRefractiveIndex and
+                 key[2] == tstep):
                 print("PID_ParticleRefractiveIndex,", prop.getValue())
                 parent = self._jsondata['materials']
                 parent[1]["refractiveIndex"] = prop.getValue()
+
             else:
                 print("unknown property key: ", key[0])
 
