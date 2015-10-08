@@ -32,6 +32,7 @@ import numpy as np
 import pandas as pd
 import vtkSupport as vtkS
 import mmpMeshSupport as meshS
+import generalSupport as gS
 import hdfSupport as hdfS
 import json
 import initialConfiguration as initConf
@@ -62,12 +63,15 @@ PropertyID.PID_NumberOfRays = 23
 PropertyID.PID_LEDSpectrum = 24
 PropertyID.PID_ParticleNumberDensity = 25
 PropertyID.PID_ParticleRefractiveIndex = 26
+PropertyID.PID_EmissionSpectrum = 2121
+PropertyID.PID_ExcitationSpectrum = 2222
+PropertyID.PID_AsorptionSpectrum = 2323
 
 PropertyID.PID_ScatteringCrossSections = 28
 PropertyID.PID_InverseCumulativeDist = 29
 
 FieldID.FID_HeatSourceVol = 33
-FieldID.FID_HeatSourceSurf = 33
+FieldID.FID_HeatSourceSurf = 34
 ##########################################################
 
 ### Function IDs until implemented at mupif ###
@@ -488,14 +492,34 @@ class MMPRaytracer(Application):
                 print("unknown property key: ", key[0])
 
         # Datafiles:
-        # TODO: These should also come from properties
         parent = self._jsondata['materials']
+
+        # Properties containing emission spectrums
+        if PropertyID.PID_EmissionSpectrum in\
+                self.properties.index.get_level_values('propertyID'):
+            em = self.properties.xs((PropertyID.PID_EmissionSpectrum, tstep),
+                                    level=('propertyID', 'tstep'))
+        else:
+            em = None
+
+        if em is None:
+            parent[3]["cumulativeEmissionSpectrumFilenames"] = [
+                resource_filename(__name__, "data/InvCumul_EM_GREEN.dat")]
+        else:
+            em_fname = []
+            for i, row in em.iteritems():
+                p = row.getValue()
+                fname = 'InvCumul_EM_%d.dat' % i
+                gS.writeEmissionSpectrumFile(p["wavelengths"],
+                                             p["intensities"],
+                                             fname)
+                em_fname.extend([fname])
+            parent[3]["cumulativeEmissionSpectrumFilenames"] = em_fname
+
         parent[3]["excitationSpectrumFilenames"] = [
             resource_filename(__name__, "data/EX_GREEN.dat")]
         parent[3]["absorptionSpectrumFilenames"] = [
             resource_filename(__name__, "data/Abs_GREEN.dat")]
-        parent[3]["cumulativeEmissionSpectrumFilenames"] = [
-            resource_filename(__name__, "data/InvCumul_EM_GREEN.dat")]
 
         # write the json file:
         f = open('input.json', 'w')
@@ -576,13 +600,13 @@ class MMPRaytracer(Application):
                objID.OBJ_PARTICLE_TYPE_1,
                tstep)
 
-        dataScat = self.properties[key].values
+        dataScat = self.properties[key].getValue()
 
         key = (PropertyID.PID_InverseCumulativeDist,
                objID.OBJ_PARTICLE_TYPE_1,
                tstep)
 
-        dataCDF = self.properties[key].values
+        dataCDF = self.properties[key].getValue()
 
         # Wavelengths used
         # key = (PropertyID.PID_LEDSpectrum, objID.OBJ_CHIP_ACTIVE_AREA, 0)
