@@ -12,6 +12,9 @@ PropertyID.PID_NumberOfRays = 23
 PropertyID.PID_LEDSpectrum = 24
 PropertyID.PID_ParticleNumberDensity = 25
 PropertyID.PID_ParticleRefractiveIndex = 26
+PropertyID.PID_EmissionSpectrum = 2121
+PropertyID.PID_ExcitationSpectrum = 2222
+PropertyID.PID_AsorptionSpectrum = 2323
 
 PropertyID.PID_ScatteringCrossSections = 28
 PropertyID.PID_InverseCumulativeDist = 29
@@ -54,16 +57,13 @@ print(tracerApp)
 logger.info('Connecting Mie properties...')
 pScat = mieApp.getProperty(PropertyID.PID_ScatteringCrossSections, 0,
                            objID.OBJ_PARTICLE_TYPE_1)
-print(pScat)
-print(pScat.getValue())
-
 
 pPhase = mieApp.getProperty(PropertyID.PID_InverseCumulativeDist, 0,
                             objID.OBJ_PARTICLE_TYPE_1)
 
 logger.info('Props received...')
-tracerApp.setProperty(Pyro4.Proxy(pScat._PyroURL), objID.OBJ_PARTICLE_TYPE_1)
-#tracerApp.setProperty(pPhase, objID.OBJ_PARTICLE_TYPE_1)
+tracerApp.setProperty(pScat, objID.OBJ_PARTICLE_TYPE_1)
+tracerApp.setProperty(pPhase, objID.OBJ_PARTICLE_TYPE_1)
 logger.info('Props connected')
 
 '''

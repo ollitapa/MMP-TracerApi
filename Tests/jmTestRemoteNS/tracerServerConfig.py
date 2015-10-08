@@ -13,7 +13,9 @@ nshost = 'mech.FSV.CVUT.CZ'  # NameServer - do not change
 nsport = 9090  # NameServer's port - do not change
 hkey = 'mmp-secret-key'  # Password for accessing nameServer and applications
 nathost = 'localhost'  # NatHost of local computer - do not change
+serverNathost = 'localhost'  # NatHost of local computer - do not change
 
+server = 'mmpserver.erve.vtt.fi'
 daemonHost = 'mmpserver.erve.vtt.fi'  # socket.getfqdn()  # IP of server
 hostUserName = 'otolli'  # User name for ssh connection
 
