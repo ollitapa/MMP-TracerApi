@@ -83,13 +83,31 @@ if __name__ == '__main__':
     tracerApp.setProperty(nRays)
 
     # Emission spectrum
-    nRays = Property.Property(value=ex_em_import.getEm(),
-                              propID=PropertyID.PID_EmissionSpectrum,
-                              valueType=ValueType.Scalar,
-                              time=0.0,
-                              units=None,
-                              objectID=objID.OBJ_CONE)
-    tracerApp.setProperty(nRays)
+    em = Property.Property(value=ex_em_import.getEm(),
+                           propID=PropertyID.PID_EmissionSpectrum,
+                           valueType=ValueType.Scalar,
+                           time=0.0,
+                           units=None,
+                           objectID=objID.OBJ_CONE)
+    tracerApp.setProperty(em)
+
+    # Excitation spectrum
+    ex = Property.Property(value=ex_em_import.getEx(),
+                           propID=PropertyID.PID_EmissionSpectrum,
+                           valueType=ValueType.Scalar,
+                           time=0.0,
+                           units=None,
+                           objectID=objID.OBJ_CONE)
+    tracerApp.setProperty(ex)
+
+    # Absorption spectrum
+    aabs = Property.Property(value=ex_em_import.getAbs(),
+                             propID=PropertyID.PID_EmissionSpectrum,
+                             valueType=ValueType.Scalar,
+                             time=0.0,
+                             units=None,
+                             objectID=objID.OBJ_CONE)
+    tracerApp.setProperty(aabs)
 
     logger.info('Properties set!')
 

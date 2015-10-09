@@ -499,13 +499,7 @@ class MMPRaytracer(Application):
                 self.properties.index.get_level_values('propertyID'):
             em = self.properties.xs((PropertyID.PID_EmissionSpectrum, tstep),
                                     level=('propertyID', 'tstep'))
-        else:
-            em = None
 
-        if em is None:
-            parent[3]["cumulativeEmissionSpectrumFilenames"] = [
-                resource_filename(__name__, "data/InvCumul_EM_GREEN.dat")]
-        else:
             em_fname = []
             for i, row in em.iteritems():
                 p = row.getValue()
@@ -515,11 +509,48 @@ class MMPRaytracer(Application):
                                              fname)
                 em_fname.extend([fname])
             parent[3]["cumulativeEmissionSpectrumFilenames"] = em_fname
+        else:
+            parent[3]["cumulativeEmissionSpectrumFilenames"] = [
+                resource_filename(__name__, "data/InvCumul_EM_GREEN.dat")]
 
-        parent[3]["excitationSpectrumFilenames"] = [
-            resource_filename(__name__, "data/EX_GREEN.dat")]
-        parent[3]["absorptionSpectrumFilenames"] = [
-            resource_filename(__name__, "data/Abs_GREEN.dat")]
+        # Excitation spectrum property
+        if PropertyID.PID_ExcitationSpectrum in\
+                self.properties.index.get_level_values('propertyID'):
+            ex = self.properties.xs((PropertyID.PID_ExcitationSpectrum, tstep),
+                                    level=('propertyID', 'tstep'))
+
+            ex_fname = []
+            for i, row in ex.iteritems():
+                p = row.getValue()
+                fname = 'InvCumul_EM_%d.dat' % i
+                gS.writeExAbsSpectrumFile(p["wavelengths"],
+                                          p["intensities"],
+                                          fname)
+                ex_fname.extend([fname])
+            parent[3]["excitationSpectrumFilenames"] = ex_fname
+        else:
+            parent[3]["excitationSpectrumFilenames"] = [
+                resource_filename(__name__, "data/EX_GREEN.dat")]
+
+        # Absorption spectrum property
+        if PropertyID.PID_AsorptionSpectrum in\
+                self.properties.index.get_level_values('propertyID'):
+            aabs = self.properties.xs((PropertyID.PID_AsorptionSpectrum,
+                                       tstep),
+                                      level=('propertyID', 'tstep'))
+
+            aabs_fname = []
+            for i, row in aabs.iteritems():
+                p = row.getValue()
+                fname = 'InvCumul_EM_%d.dat' % i
+                gS.writeExAbsSpectrumFile(p["wavelengths"],
+                                          p["intensities"],
+                                          fname)
+                aabs_fname.extend([fname])
+            parent[3]["absorptionSpectrumFilenames"] = aabs_fname
+        else:
+            parent[3]["absorptionSpectrumFilenames"] = [
+                resource_filename(__name__, "data/Abs_GREEN.dat")]
 
         # write the json file:
         f = open('input.json', 'w')
