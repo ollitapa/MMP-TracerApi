@@ -9,19 +9,20 @@ if __name__ == '__main__':
     logger = logging.getLogger()
 
     ### FID and PID definitions untill implemented at mupif###
-    PropertyID.PID_RefractiveIndex = 22
-    PropertyID.PID_NumberOfRays = 23
-    PropertyID.PID_LEDSpectrum = 24
-    PropertyID.PID_ParticleNumberDensity = 25
-    PropertyID.PID_ParticleRefractiveIndex = 26
-    PropertyID.PID_EmissionSpectrum = 2121
-    PropertyID.PID_ExcitationSpectrum = 2222
-    PropertyID.PID_AsorptionSpectrum = 2323
+    PropertyID.PID_RefractiveIndex = "PID_RefractiveIndex"
+    PropertyID.PID_NumberOfRays = "PID_NumberOfRays"
+    PropertyID.PID_LEDSpectrum = "PID_LEDSpectrum"
+    PropertyID.PID_ParticleNumberDensity = "PID_ParticleNumberDensity"
+    PropertyID.PID_ParticleRefractiveIndex = "PID_ParticleRefractiveIndex"
+    PropertyID.PID_EmissionSpectrum = "PID_EmissionSpectrum"
+    PropertyID.PID_ExcitationSpectrum = "PID_ExcitationSpectrum"
+    PropertyID.PID_AsorptionSpectrum = "PID_AsorptionSpectrum"
 
-    PropertyID.PID_ScatteringCrossSections = 28
-    PropertyID.PID_InverseCumulativeDist = 29
+    PropertyID.PID_ScatteringCrossSections = "PID_ScatteringCrossSections"
+    PropertyID.PID_InverseCumulativeDist = "PID_InverseCumulativeDist"
 
-    FieldID.FID_HeatSourceVol = 33
+    FieldID.FID_HeatSourceVol = "FID_HeatSourceVol"
+    FieldID.FID_HeatSourceSurf = "FID_HeatSourceSurf"
     ##########################################################
 
     import time as timeTime

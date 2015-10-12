@@ -58,26 +58,21 @@ Pyro4.config.SERIALIZERS_ACCEPTED = ['pickle', 'serpent', 'json']
 Pyro4.config.SERIALIZER = 'pickle'
 
 ### FID and PID definitions untill implemented at mupif###
-PropertyID.PID_RefractiveIndex = 22
-PropertyID.PID_NumberOfRays = 23
-PropertyID.PID_LEDSpectrum = 24
-PropertyID.PID_ParticleNumberDensity = 25
-PropertyID.PID_ParticleRefractiveIndex = 26
-PropertyID.PID_EmissionSpectrum = 2121
-PropertyID.PID_ExcitationSpectrum = 2222
-PropertyID.PID_AsorptionSpectrum = 2323
+PropertyID.PID_RefractiveIndex = "PID_RefractiveIndex"
+PropertyID.PID_NumberOfRays = "PID_NumberOfRays"
+PropertyID.PID_LEDSpectrum = "PID_LEDSpectrum"
+PropertyID.PID_ParticleNumberDensity = "PID_ParticleNumberDensity"
+PropertyID.PID_ParticleRefractiveIndex = "PID_ParticleRefractiveIndex"
+PropertyID.PID_EmissionSpectrum = "PID_EmissionSpectrum"
+PropertyID.PID_ExcitationSpectrum = "PID_ExcitationSpectrum"
+PropertyID.PID_AsorptionSpectrum = "PID_AsorptionSpectrum"
 
-PropertyID.PID_ScatteringCrossSections = 28
-PropertyID.PID_InverseCumulativeDist = 29
+PropertyID.PID_ScatteringCrossSections = "PID_ScatteringCrossSections"
+PropertyID.PID_InverseCumulativeDist = "PID_InverseCumulativeDist"
 
-FieldID.FID_HeatSourceVol = 33
-FieldID.FID_HeatSourceSurf = 34
+FieldID.FID_HeatSourceVol = "FID_HeatSourceVol"
+FieldID.FID_HeatSourceSurf = "FID_HeatSourceSurf"
 ##########################################################
-
-### Function IDs until implemented at mupif ###
-FunctionID.FuncID_ScatteringCrossSections = 55
-FunctionID.FuncID_ScatteringInvCumulDist = 56
-###############################################
 
 
 class MMPRaytracer(Application):
@@ -102,7 +97,7 @@ class MMPRaytracer(Application):
         # Containers
         # Properties
         # Key should be in form of tuple (propertyID, objectID, tstep)
-        idx = pd.MultiIndex.from_tuples([(1.0, 1.0, 1.0)],
+        idx = pd.MultiIndex.from_tuples([("propertyID", 1.0, 1.0)],
                                         names=['propertyID',
                                                'objectID',
                                                'tstep'])
@@ -110,7 +105,7 @@ class MMPRaytracer(Application):
 
         # Fields
         # Key should be in form of tuple (fieldID, tstep)
-        idxf = pd.MultiIndex.from_tuples([(1.0, 1.0)],
+        idxf = pd.MultiIndex.from_tuples([("fieldID", 1.0)],
                                          names=['fieldID', 'tstep'])
         self.fields = pd.Series(index=idxf, dtype=Field.Field)
 
@@ -270,12 +265,12 @@ class MMPRaytracer(Application):
         initConf.checkRequiredParameters(self.properties, PropertyID)
         initConf.checkRequiredFunctions(self.functions, fID=FunctionID)
 
-        # Write out JSON file.
-        self._writeInputJSON(tstep)
-
         # Set current tstep and copy previous results as starting values
         self._curTStep = tstep
         self._copyPreviousSolution()
+
+        # Write out JSON file.
+        self._writeInputJSON(tstep)
 
         # Get mie data from other app
         self._getMieData(tstep)
@@ -441,13 +436,6 @@ class MMPRaytracer(Application):
         """
 
         # update json based on the Properties:
-        """
-        PropertyID.PID_RefractiveIndex = 22
-        PropertyID.PID_NumberOfRays = 23
-        PropertyID.PID_LEDSpectrum = 24
-        PropertyID.PID_ParticleNumberDensity = 25
-        PropertyID.PID_ParticleRefractiveIndex = 26
-        """
         # print("Property keys:")
         for key in self.properties.index:
             # print(key)
@@ -487,10 +475,12 @@ class MMPRaytracer(Application):
                 print("PID_ParticleRefractiveIndex,", prop.getValue())
                 parent = self._jsondata['materials']
                 parent[1]["refractiveIndex"] = prop.getValue()
-
-            else:
-                print("unknown property key: ", key[0])
-
+            elif(key[0] == PropertyID.PID_ScatteringCrossSections and
+                 key[2] == tstep):
+                pass
+            elif(key[0] == PropertyID.PID_InverseCumulativeDist and
+                 key[2] == tstep):
+                pass
         # Datafiles:
         parent = self._jsondata['materials']
 

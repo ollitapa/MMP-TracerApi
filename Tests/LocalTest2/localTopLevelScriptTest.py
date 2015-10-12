@@ -23,20 +23,22 @@ import logging
 import logging.config
 
 
-# FID and PID definitions untill implemented at mupif ###
-PropertyID.PID_RefractiveIndex = 22
-PropertyID.PID_NumberOfRays = 23
-PropertyID.PID_LEDSpectrum = 24
-PropertyID.PID_ParticleNumberDensity = 25
-PropertyID.PID_ParticleRefractiveIndex = 26
+### FID and PID definitions untill implemented at mupif###
+PropertyID.PID_RefractiveIndex = "PID_RefractiveIndex"
+PropertyID.PID_NumberOfRays = "PID_NumberOfRays"
+PropertyID.PID_LEDSpectrum = "PID_LEDSpectrum"
+PropertyID.PID_ParticleNumberDensity = "PID_ParticleNumberDensity"
+PropertyID.PID_ParticleRefractiveIndex = "PID_ParticleRefractiveIndex"
+PropertyID.PID_EmissionSpectrum = "PID_EmissionSpectrum"
+PropertyID.PID_ExcitationSpectrum = "PID_ExcitationSpectrum"
+PropertyID.PID_AsorptionSpectrum = "PID_AsorptionSpectrum"
 
-FieldID.FID_HeatSourceVol = 33
+PropertyID.PID_ScatteringCrossSections = "PID_ScatteringCrossSections"
+PropertyID.PID_InverseCumulativeDist = "PID_InverseCumulativeDist"
+
+FieldID.FID_HeatSourceVol = "FID_HeatSourceVol"
+FieldID.FID_HeatSourceSurf = "FID_HeatSourceSurf"
 ##########################################################
-
-# Function IDs until implemented at mupif ###
-FunctionID.FuncID_ScatteringCrossSections = 55
-FunctionID.FuncID_ScatteringInvCumulDist = 56
-###############################################
 
 
 if __name__ == '__main__':
@@ -61,11 +63,13 @@ if __name__ == '__main__':
     comsolApp = MMPComsolDummy('localhost')
 
     # Connect functions
-    fScat = mieApp.getFunction(FunctionID.FuncID_ScatteringCrossSections, 0)
-    fPhase = mieApp.getFunction(FunctionID.FuncID_ScatteringInvCumulDist, 0)
+    pScat = mieApp.getProperty(PropertyID.PID_ScatteringCrossSections, 0,
+                               objectID=objID.OBJ_PARTICLE_TYPE_1)
+    pPhase = mieApp.getProperty(PropertyID.PID_InverseCumulativeDist, 0,
+                                objectID=objID.OBJ_PARTICLE_TYPE_1)
 
-    tracerApp.setFunction(fScat)
-    tracerApp.setFunction(fPhase)
+    tracerApp.setProperty(pScat)
+    tracerApp.setProperty(pPhase)
 
     # Connect fields
     fTemp = comsolApp.getField(FieldID.FID_Temperature, 0)
