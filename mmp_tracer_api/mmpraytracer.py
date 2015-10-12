@@ -32,6 +32,7 @@ import numpy as np
 import pandas as pd
 import vtkSupport as vtkS
 import mmpMeshSupport as meshS
+import generalSupport as gS
 import hdfSupport as hdfS
 import json
 import initialConfiguration as initConf
@@ -62,8 +63,15 @@ PropertyID.PID_NumberOfRays = 23
 PropertyID.PID_LEDSpectrum = 24
 PropertyID.PID_ParticleNumberDensity = 25
 PropertyID.PID_ParticleRefractiveIndex = 26
+PropertyID.PID_EmissionSpectrum = 2121
+PropertyID.PID_ExcitationSpectrum = 2222
+PropertyID.PID_AsorptionSpectrum = 2323
+
+PropertyID.PID_ScatteringCrossSections = 28
+PropertyID.PID_InverseCumulativeDist = 29
 
 FieldID.FID_HeatSourceVol = 33
+FieldID.FID_HeatSourceSurf = 34
 ##########################################################
 
 ### Function IDs until implemented at mupif ###
@@ -94,15 +102,15 @@ class MMPRaytracer(Application):
         # Containers
         # Properties
         # Key should be in form of tuple (propertyID, objectID, tstep)
-        idx = pd.MultiIndex.from_tuples([(0.1, 0.1, 0.1)],
+        idx = pd.MultiIndex.from_tuples([(1.0, 1.0, 1.0)],
                                         names=['propertyID',
                                                'objectID',
                                                'tstep'])
-        self.properties = pd.Series(index=idx)
+        self.properties = pd.Series(index=idx, dtype=Property.Property)
 
         # Fields
         # Key should be in form of tuple (fieldID, tstep)
-        idxf = pd.MultiIndex.from_tuples([(1, 1)],
+        idxf = pd.MultiIndex.from_tuples([(1.0, 1.0)],
                                          names=['fieldID', 'tstep'])
         self.fields = pd.Series(index=idxf, dtype=Field.Field)
 
@@ -154,9 +162,9 @@ class MMPRaytracer(Application):
             field = self.fields[key]
 
         # Check if object is registered to Pyro
-        if hasattr(self, '_pyroDaemon') and not hasattr(field, '_PyroURI'):
-            uri = self._pyroDaemon.register(field)
-            field._PyroURI = uri
+        # if hasattr(self, '_pyroDaemon') and not hasattr(field, '_PyroURI'):
+        #    uri = self._pyroDaemon.register(field)
+        #    field._PyroURI = uri
 
         return(field)
 
@@ -168,6 +176,7 @@ class MMPRaytracer(Application):
         """
 
         # Set the new property to container
+        print(field)
         key = (field.getFieldID(), field.time)
         self.fields.set_value(key, field)
 
@@ -198,9 +207,9 @@ class MMPRaytracer(Application):
             prop = self.properties[key]
 
         # Check pyro registering if applicaple
-        if hasattr(self, '_pyroDaemon') and not hasattr(prop, '_PyroURI'):
-            uri = self._pyroDaemon.register(prop)
-            prop._PyroURI = uri
+        # if hasattr(self, '_pyroDaemon') and not hasattr(prop, '_PyroURI'):
+        #    uri = self._pyroDaemon.register(prop)
+        #    prop._PyroURI = uri
 
         return(prop)
 
@@ -215,44 +224,7 @@ class MMPRaytracer(Application):
 
         # Set the new property to container
         key = (newProp.getPropertyID(), newProp.objectID, newProp.time)
-
         self.properties.set_value(key, newProp)
-
-    def getFunction(self, funcID, objectID=0):
-        """
-        Returns function identified by its ID
-
-        :param FunctionID funcID: function ID
-        :param int objectID: Identifies optional object/submesh on which
-               property is evaluated (optional, default 0)
-
-        :return: Returns requested function
-        :rtype: Function
-        """
-        key = (funcID, objectID)
-        if key not in self.functions.index:
-            raise APIError.APIError('Unknown function ID')
-
-        func = self.functions[key]
-
-        # Chek if object is registered to Pyro
-        if hasattr(self, '_pyroDaemon') and not hasattr(func, '_PyroURI'):
-            uri = self._pyroDaemon.register(func)
-            func._PyroURI = uri
-
-        return(func)
-
-    def setFunction(self, func, objectID=0):
-        """
-        Register given function in the application
-
-        :param Function func: Function to register
-        :param int objectID: Identifies optional object/submesh on
-               which property is evaluated (optional, default 0)
-        """
-        # Set the new property to container
-        key = (func.getID(), objectID)
-        self.functions[key] = func
 
     def getMesh(self, tstep):
         """
@@ -299,14 +271,14 @@ class MMPRaytracer(Application):
         initConf.checkRequiredFunctions(self.functions, fID=FunctionID)
 
         # Write out JSON file.
-        self._writeInputJSON()
+        self._writeInputJSON(tstep)
 
         # Set current tstep and copy previous results as starting values
         self._curTStep = tstep
         self._copyPreviousSolution()
 
         # Get mie data from other app
-        self._getMieData()
+        self._getMieData(tstep)
 
         # Start thread to start calculation
         self.tracerProcess = Popen(  # ["ping", "127.0.0.1",  "-n",
@@ -461,7 +433,7 @@ class MMPRaytracer(Application):
                                         objectID=p.objectID)
             self.properties.set_value(newKey, newProp)
 
-    def _writeInputJSON(self):
+    def _writeInputJSON(self, tstep):
         """
         Writes input JSON for the raytracer.
         The fields and parameters should be accessible before
@@ -481,16 +453,21 @@ class MMPRaytracer(Application):
             # print(key)
             prop = self.properties[key]
 
-            if(key[0] == PropertyID.PID_RefractiveIndex):
+            if(key[0] == PropertyID.PID_RefractiveIndex and
+               key[2] == tstep):
                 print("PID_RefractiveIndex, ", prop.getValue())
                 parent = self._jsondata['materials']
                 parent[1]["refractiveIndex"] = prop.getValue()
-            elif(key[0] == PropertyID.PID_NumberOfRays):
+
+            elif(key[0] == PropertyID.PID_NumberOfRays and
+                 key[2] == tstep):
                 print("PID_NumberOfRays, ", prop.getValue())
                 parent = self._jsondata['sources']
                 for item in parent:
                     item["rays"] = prop.getValue()
-            elif(key[0] == PropertyID.PID_LEDSpectrum):
+
+            elif(key[0] == PropertyID.PID_LEDSpectrum and
+                 key[2] == tstep):
                 print("PID_LEDSpectrum, ", prop.getValue())
                 parent = self._jsondata['sources']
                 for item in parent:
@@ -498,26 +475,82 @@ class MMPRaytracer(Application):
                         "wavelengths"].tolist()
                     item["intensities"] = prop.getValue()[
                         "intensities"].tolist()
-            elif(key[0] == PropertyID.PID_ParticleNumberDensity):
+
+            elif(key[0] == PropertyID.PID_ParticleNumberDensity and
+                 key[2] == tstep):
                 print("PID_ParticleNumberDensity, ", prop.getValue())
                 parent = self._jsondata['materials']
                 parent[3]["particleDensities"] = [prop.getValue()]
-            elif(key[0] == PropertyID.PID_ParticleRefractiveIndex):
+
+            elif(key[0] == PropertyID.PID_ParticleRefractiveIndex and
+                 key[2] == tstep):
                 print("PID_ParticleRefractiveIndex,", prop.getValue())
                 parent = self._jsondata['materials']
                 parent[1]["refractiveIndex"] = prop.getValue()
+
             else:
                 print("unknown property key: ", key[0])
 
         # Datafiles:
-        # TODO: These should also come from properties
         parent = self._jsondata['materials']
-        parent[3]["excitationSpectrumFilenames"] = [
-            resource_filename(__name__, "data/EX_GREEN.dat")]
-        parent[3]["absorptionSpectrumFilenames"] = [
-            resource_filename(__name__, "data/Abs_GREEN.dat")]
-        parent[3]["cumulativeEmissionSpectrumFilenames"] = [
-            resource_filename(__name__, "data/InvCumul_EM_GREEN.dat")]
+
+        # Properties containing emission spectrums
+        if PropertyID.PID_EmissionSpectrum in\
+                self.properties.index.get_level_values('propertyID'):
+            em = self.properties.xs((PropertyID.PID_EmissionSpectrum, tstep),
+                                    level=('propertyID', 'tstep'))
+
+            em_fname = []
+            for i, row in em.iteritems():
+                p = row.getValue()
+                fname = 'InvCumul_EM_%d.dat' % i
+                gS.writeEmissionSpectrumFile(p["wavelengths"],
+                                             p["intensities"],
+                                             fname)
+                em_fname.extend([fname])
+            parent[3]["cumulativeEmissionSpectrumFilenames"] = em_fname
+        else:
+            parent[3]["cumulativeEmissionSpectrumFilenames"] = [
+                resource_filename(__name__, "data/InvCumul_EM_GREEN.dat")]
+
+        # Excitation spectrum property
+        if PropertyID.PID_ExcitationSpectrum in\
+                self.properties.index.get_level_values('propertyID'):
+            ex = self.properties.xs((PropertyID.PID_ExcitationSpectrum, tstep),
+                                    level=('propertyID', 'tstep'))
+
+            ex_fname = []
+            for i, row in ex.iteritems():
+                p = row.getValue()
+                fname = 'InvCumul_EM_%d.dat' % i
+                gS.writeExAbsSpectrumFile(p["wavelengths"],
+                                          p["intensities"],
+                                          fname)
+                ex_fname.extend([fname])
+            parent[3]["excitationSpectrumFilenames"] = ex_fname
+        else:
+            parent[3]["excitationSpectrumFilenames"] = [
+                resource_filename(__name__, "data/EX_GREEN.dat")]
+
+        # Absorption spectrum property
+        if PropertyID.PID_AsorptionSpectrum in\
+                self.properties.index.get_level_values('propertyID'):
+            aabs = self.properties.xs((PropertyID.PID_AsorptionSpectrum,
+                                       tstep),
+                                      level=('propertyID', 'tstep'))
+
+            aabs_fname = []
+            for i, row in aabs.iteritems():
+                p = row.getValue()
+                fname = 'InvCumul_EM_%d.dat' % i
+                gS.writeExAbsSpectrumFile(p["wavelengths"],
+                                          p["intensities"],
+                                          fname)
+                aabs_fname.extend([fname])
+            parent[3]["absorptionSpectrumFilenames"] = aabs_fname
+        else:
+            parent[3]["absorptionSpectrumFilenames"] = [
+                resource_filename(__name__, "data/Abs_GREEN.dat")]
 
         # write the json file:
         f = open('input.json', 'w')
@@ -589,19 +622,22 @@ class MMPRaytracer(Application):
         callback(lines)
         return
 
-    def _getMieData(self):
+    def _getMieData(self, tstep):
 
         logger.debug("Getting mie data...")
 
-        # Functions where to get the mie data
-        key = (FunctionID.FuncID_ScatteringCrossSections, 0)
-        scat = self.functions[key]
-        key = (FunctionID.FuncID_ScatteringInvCumulDist, 0)
-        cdf = self.functions[key]
+        # Get the Mie data
+        key = (PropertyID.PID_ScatteringCrossSections,
+               objID.OBJ_PARTICLE_TYPE_1,
+               tstep)
 
-        # Get the data
-        dataScat = scat.evaluate(None)
-        dataCDF = cdf.evaluate(None)
+        dataScat = self.properties[key].getValue()
+
+        key = (PropertyID.PID_InverseCumulativeDist,
+               objID.OBJ_PARTICLE_TYPE_1,
+               tstep)
+
+        dataCDF = self.properties[key].getValue()
 
         # Wavelengths used
         # key = (PropertyID.PID_LEDSpectrum, objID.OBJ_CHIP_ACTIVE_AREA, 0)
