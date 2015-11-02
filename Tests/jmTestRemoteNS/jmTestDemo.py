@@ -5,7 +5,7 @@ from comsol_api import MMPComsolDummy
 from mupif import PyroUtil, Property, PropertyID, FieldID, ValueType
 import logging
 logger = logging.getLogger()
-
+'''
 ### FID and PID definitions untill implemented at mupif###
 PropertyID.PID_RefractiveIndex = 22
 PropertyID.PID_NumberOfRays = 23
@@ -21,6 +21,21 @@ PropertyID.PID_InverseCumulativeDist = 29
 
 FieldID.FID_HeatSourceVol = 33
 ##########################################################
+'''
+PropertyID.PID_RefractiveIndex = "PID_RefractiveIndex"
+PropertyID.PID_NumberOfRays = "PID_NumberOfRays"
+PropertyID.PID_LEDSpectrum = "PID_LEDSpectrum"
+PropertyID.PID_ParticleNumberDensity = "PID_ParticleNumberDensity"
+PropertyID.PID_ParticleRefractiveIndex = "PID_ParticleRefractiveIndex"
+PropertyID.PID_EmissionSpectrum = "PID_EmissionSpectrum"
+PropertyID.PID_ExcitationSpectrum = "PID_ExcitationSpectrum"
+PropertyID.PID_AsorptionSpectrum = "PID_AsorptionSpectrum"
+
+PropertyID.PID_ScatteringCrossSections = "PID_ScatteringCrossSections"
+PropertyID.PID_InverseCumulativeDist = "PID_InverseCumulativeDist"
+
+FieldID.FID_HeatSourceVol = "FID_HeatSourceVol"
+FieldID.FID_HeatSourceSurf = "FID_HeatSourceSurf"
 
 
 import time as timeTime
@@ -41,16 +56,21 @@ mieSolverAppRec = PyroUtil.allocateApplicationWithJobManager(
     ns, cConf.mieSolverJobManRec, cConf.jobNatPorts.pop(0),
     cConf.sshClient, cConf.options, cConf.sshHost)
 
+comsolAppRec = PyroUtil.allocateApplicationWithJobManager(ns, cConf.comsolSolverJobManRec, cConf.jobNatPorts.pop(0), cConf.sshClient, cConf.options, cConf.sshHost)
+
 
 mieApp = mieSolverAppRec.getApplication()
 tracerApp = tracerSolverAppRec.getApplication()
 #comsolApp = MMPComsolDummy('localhost')
+comsolApp = comsolAppRec.getApplication()
 
 logger.info('Applications loaded:')
 print(mieApp)
 print(tracerApp)
-# print(comsolApp)
+print(comsolApp)
 
+#create a reverse tunnel so tracer can access comsol directly
+appsTunnel = PyroUtil.connectApplications(cConf.tracerSolverJobManRec, comsolApp, sshClient=cConf.sshClient, options=cConf.options)
 
 # Connect functions
 
@@ -66,17 +86,24 @@ tracerApp.setProperty(pScat, objID.OBJ_PARTICLE_TYPE_1)
 tracerApp.setProperty(pPhase, objID.OBJ_PARTICLE_TYPE_1)
 logger.info('Props connected')
 
-'''
+
 # Connect fields
-logger.info('Connecting Fields...')
-fTemp = comsolApp.getField(FieldID.FID_Temperature, 0)
-fHeat = comsolApp.getField(FieldID.FID_HeatSourceVol, 0)
-print(fTemp)
+logger.info('Connecting Fields...in direct app-to-app manner')
+fTempURI = comsolApp.getFieldURI(FieldID.FID_Temperature, 0)
+fHeatURI = comsolApp.getFieldURI(FieldID.FID_HeatSourceVol, 0)
+print(fTempURI, fHeatURI)
+fTemp = cConf.Pyro4.Proxy(fTempURI)
+fHeat = cConf.Pyro4.Proxy(fHeatURI)
+print('fTemp=',fTemp)
+
+##old way to connect fields:
+#fTemp = comsolApp.getField(FieldID.FID_Temperature, 0)
+#fHeat = comsolApp.getField(FieldID.FID_HeatSourceVol, 0)
 
 tracerApp.setField(fTemp)
 tracerApp.setField(fHeat)
 logger.info('Fields connected')
-'''
+
 # Connect properties
 # Particle density
 logger.info('Setting Properties...')
@@ -104,7 +131,7 @@ mieApp.solveStep(0)
 logger.debug("mieApp.isSolved=", mieApp.isSolved())  # True
 
 tracerApp.solveStep(0, runInBackground=False)
-# comsolApp.solveStep(0)
+comsolApp.solveStep(0)
 
 # Plot data to file
 logger.info("Saving vtk")
@@ -120,3 +147,9 @@ if mieSolverAppRec:
     mieSolverAppRec.terminateAll()
 if tracerSolverAppRec:
     tracerSolverAppRec.terminateAll()
+if comsolAppRec:
+    comsolAppRec.terminateAll()
+if appsTunnel:
+    appsTunnel.terminate()
+
+

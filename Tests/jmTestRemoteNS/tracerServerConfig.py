@@ -17,7 +17,7 @@ serverNathost = 'localhost'  # NatHost of local computer - do not change
 
 server = 'mmpserver.erve.vtt.fi'
 daemonHost = 'mmpserver.erve.vtt.fi'  # socket.getfqdn()  # IP of server
-hostUserName = 'otolli'  # User name for ssh connection
+hostUserName = 'elemim'  # User name for ssh connection
 
 jobManPort = 44362  # Port for job manager's daemon
 jobManNatport = 5556  # Natport - nat port used in ssh tunnel for job manager

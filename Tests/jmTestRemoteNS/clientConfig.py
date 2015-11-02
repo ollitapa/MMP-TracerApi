@@ -14,7 +14,7 @@ serverNathost = 'localhost'  # NatHost of local computer - do not change
 
 server = 'mmpserver.erve.vtt.fi'
 daemonHost = 'mmpserver.erve.vtt.fi'  # IP of server
-hostUserName = 'otolli'  # 'mmp'#User name for ssh connection
+hostUserName = 'elemim'  # 'mmp'#User name for ssh connection
 
 # Edit these paths for your SSH-client and location of a private key
 if(sys.platform.lower().startswith('win')):  # Windows ssh client
@@ -35,6 +35,10 @@ mieSolverJobManRec = (44360, 5557, 'mmpserver.erve.vtt.fi',
 
 tracerSolverJobManRec = (44362, 5556, 'mmpserver.erve.vtt.fi',
                          hostUserName, 'Mupif.JobManager@Raytracer')
+
+
+comsolSolverJobManRec = (44363, 5558, 'mmpserver.erve.vtt.fi',
+                         hostUserName, 'Mupif.JobManager@MMPComsolDummy')
 
 # client ports used to establish ssh connections (nat ports)
 jobNatPorts = range(4000, 4019)
