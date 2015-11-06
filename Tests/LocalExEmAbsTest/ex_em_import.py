@@ -7,7 +7,7 @@ def getEx():
     try:
         A = np.loadtxt('ExEm/EX_GREEN.dat')
     except:
-        A = np.loadtxt('ExEmAbs/EX_GREEN.txt')
+        A = np.loadtxt('ExEmAbs-dummy/EX_GREEN.txt')
 
     a['wavelengths'] = A[:, 0]
     a['intensities'] = A[:, 0]
@@ -21,7 +21,7 @@ def getEm():
     try:
         A = np.loadtxt('ExEm/EM_GREEN.dat')
     except:
-        A = np.loadtxt('ExEmAbs/EM_GREEN.txt')
+        A = np.loadtxt('ExEmAbs-dummy/EM_GREEN.txt')
 
     a['wavelengths'] = A[:, 0]
     a['intensities'] = A[:, 0]
@@ -35,7 +35,7 @@ def getAbs():
     try:
         A = np.loadtxt('ExEm/Abs_GREEN.dat')
     except:
-        A = np.loadtxt('ExEmAbs/Abs_GREEN.txt')
+        A = np.loadtxt('ExEmAbs-dummy/Abs_GREEN.txt')
 
     a['wavelengths'] = A[:, 0]
     a['intensities'] = A[:, 0]
