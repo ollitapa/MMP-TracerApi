@@ -21,6 +21,7 @@ from comsol_api import MMPComsolDummy
 from mupif import PropertyID, FieldID, FunctionID, Property, ValueType
 import logging
 import logging.config
+import ex_em_import
 
 
 ### FID and PID definitions untill implemented at mupif###
@@ -45,7 +46,7 @@ if __name__ == '__main__':
 
     # create a new logger, MMPRaytracer class creates a logger
     # that logs at the INFO-level. Use this place to set for debug level.
-    logging.config.fileConfig('loggingNew.conf')
+    logging.config.fileConfig('../loggingNew.conf')
 
     logger = logging.getLogger('mmpraytracer')
     print("#######################################")
@@ -61,6 +62,9 @@ if __name__ == '__main__':
     mieApp = MMPMie('localhost')
     tracerApp = MMPRaytracer('localhost')
     comsolApp = MMPComsolDummy('localhost')
+
+    # Set default LED json
+    tracerApp.setDefaultInputFile('DefaultLED.json')
 
     # Connect functions
     pScat = mieApp.getProperty(PropertyID.PID_ScatteringCrossSections, 0,
@@ -97,6 +101,34 @@ if __name__ == '__main__':
                               units=None,
                               objectID=objID.OBJ_CONE)
     tracerApp.setProperty(pRays)
+    # Emission spectrum
+    em = Property.Property(value=ex_em_import.getEm(),
+                           propID=PropertyID.PID_EmissionSpectrum,
+                           valueType=ValueType.Scalar,
+                           time=0.0,
+                           units=None,
+                           objectID=objID.OBJ_CONE)
+    tracerApp.setProperty(em)
+
+    # Excitation spectrum
+    ex = Property.Property(value=ex_em_import.getEx(),
+                           propID=PropertyID.PID_EmissionSpectrum,
+                           valueType=ValueType.Scalar,
+                           time=0.0,
+                           units=None,
+                           objectID=objID.OBJ_CONE)
+    tracerApp.setProperty(ex)
+
+    # Absorption spectrum
+    aabs = Property.Property(value=ex_em_import.getAbs(),
+                             propID=PropertyID.PID_EmissionSpectrum,
+                             valueType=ValueType.Scalar,
+                             time=0.0,
+                             units=None,
+                             objectID=objID.OBJ_CONE)
+    tracerApp.setProperty(aabs)
+
+    logger.info('Properties set!')
 
     # Solve
     mieApp.solveStep(0)
