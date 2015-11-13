@@ -15,9 +15,46 @@
 #
 
 from mupif import BBox, Field, FieldID, ValueType
+import subprocess
+import os
+import numpy as np
 import logging
 import logging.config
 logger = logging.getLogger('mmpraytracer')
+import time
+
+
+def getMeshBounds(mesh):
+    '''
+    Returns the bounding box of the mesh.
+
+    Parameters
+    ----------
+    mesh : Mesh
+        Mesh object to check.
+
+    Returns
+    -------
+    bounds : list
+        List of tuples. [(xmin, xmax), (ymin, ymax), (zmin, zmax)]
+    '''
+
+    verts = np.array(mesh.vertexList)
+
+    def points(x):
+        return x.getCoordinates()
+    getP = np.vectorize(points)
+
+    verts = getP(verts)
+
+    xmax = np.max(verts[0])
+    ymax = np.max(verts[1])
+    zmax = np.max(verts[2])
+    xmin = np.min(verts[0])
+    ymin = np.min(verts[1])
+    zmin = np.min(verts[2])
+
+    return([(xmin, xmax), (ymin, ymax), (zmin, zmax)])
 
 
 def giveElementsContainingPoint(mesh, point):
@@ -38,11 +75,12 @@ def giveElementsContainingPoint(mesh, point):
             the point lies on an edge of the cells.
 
     '''
-    eps = 0.0001
+    bounds = getMeshBounds(mesh)
+    eps = np.min(np.diff(bounds)) * 0.1
     ans = []
     cells = mesh.giveCellLocalizer().giveItemsInBBox(
         BBox.BBox([c - eps for c in point], [c + eps for c in point]))
-    #print('Found %s cells' % len(cells))
+    # print('Found %s cells' % len(cells))
     for icell in cells:
         if icell.containsPoint(point):
             ans.append(icell)
@@ -113,3 +151,77 @@ def convertPointDataToMesh(points, values, field, inplace=True):
 
     logger.debug("Points not found to be in mesh: %d" % pNfound)
     return(f)
+
+
+def convertPointDataToMeshFAST(pointdataVTKfile, field, inplace=True):
+    '''
+    Converts point-data to mesh based Cell-data. This uses a c-program
+    to perform fast search. The program must be installed separately.
+    See:
+
+    An element of the mesh
+    containing each point is searched. The value of the point is added to
+    the value of that cell in the field. No interpolation of occurs.
+
+    Parameters
+    ----------
+    pointdataVTKfile : string
+            Filename to vtk-file containing point data
+    field : Field.Field
+            An empty field that should be filled with values.
+            Mupif Field in which the points should be inserted.
+    inplace : bool
+              If true the original field object is changed. Otherwise
+              a copy is returned.
+
+    Returns
+    -------
+    Field.Field
+        Field where the points have been inserted.
+
+    '''
+    logger.debug("Converting point data to mesh (cells=%d)..." % (
+        field.getMesh().getNumberOfCells()))
+
+    if not inplace:
+        f = Field.Field(field.getMesh(),
+                        field.getFieldID(),
+                        field.getValueType(),
+                        field.getUnits(),
+                        field.time,
+                        field.values,
+                        field.fieldType)
+    else:
+        f = field
+
+    v = field.field2VTKData()
+    f_mesh = 'mesh_data_tmp.vtk'
+    v.tofile(f_mesh)
+
+    logger.debug("Conversion process starting...")
+    status = subprocess.check_output(
+        ["abs2grid", f_mesh, pointdataVTKfile, '_abs'])
+    print(status)
+    if status == 0:
+        logger.debug("Conversion process done!")
+        a = np.loadtxt("AbsorptionGrid__abs.txt")
+        print(len(a))
+        print(len(f.values))
+        f.values = a
+
+    else:
+        logger.debug("Conversion failed")
+
+    return(f)
+
+
+def FASTisAvailable():
+    try:
+        subprocess.call(["abs2grid"])
+    except OSError as e:
+        if e.errno == os.errno.ENOENT:
+            return False
+        else:
+            return False
+
+    return True

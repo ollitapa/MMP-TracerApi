@@ -171,7 +171,6 @@ class MMPRaytracer(Application):
         """
 
         # Set the new property to container
-        print(field)
         key = (field.getFieldID(), field.time)
         self.fields.set_value(key, field)
 
@@ -289,6 +288,7 @@ class MMPRaytracer(Application):
                                            args=(self.tracerProcess,
                                                  self._tracerProcessEnded))
         # Post processing thread will wait for the tracer to finnish
+        logger.info('Ray tracing starting...')
         self.postThread.start()
 
         # Wait for process if applicaple
@@ -299,7 +299,7 @@ class MMPRaytracer(Application):
         """
         Wait until solve is completed when executed in background.
         """
-        logger.debug("Waiting...")
+        logger.debug("Tracing...")
         self.tracerProcess.wait()
         logger.debug("Post processing...")
         self.postThread.join()
@@ -589,7 +589,12 @@ class MMPRaytracer(Application):
         f = self.fields[key]
 
         # Convert point data to field mesh
-        meshS.convertPointDataToMesh(points, absorb, f, inplace=True)
+        if False:  # meshS.FASTisAvailable():
+            meshS.convertPointDataToMeshFAST(
+                pointdataVTKfile=self._absorptionFilePath,
+                field=f, inplace=True)
+        else:
+            meshS.convertPointDataToMesh(points, absorb, f, inplace=True)
 
         # Read line data (if needed): (TODO: not tested)
         # (pts, wv, offs) = vtkS.readLineData("ray_paths.vtp")
