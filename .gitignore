@@ -71,3 +71,4 @@ MieDataFiles
 Geometry.stl
 Tests/plotRandomExEm.py
 Tests/input.json
+*.xxx
