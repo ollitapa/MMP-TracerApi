@@ -317,14 +317,6 @@ class MMPRaytracer(Application):
             return True
         return False
 
-    def finishStep(self, tstep):
-        """
-        Called after a global convergence within a time step is achieved.
-
-        :param TimeStep tstep: Solution step
-        """
-        # TODO: What should be done here?
-
     def getCriticalTimeStep(self):
         """
         :return: Returns the actual (related to current state) critical time
@@ -333,33 +325,6 @@ class MMPRaytracer(Application):
         """
         # TODO: Check
         return np.Infinity  # Tracer does not have any time dependence...
-
-    def getAssemblyTime(self, tstep):
-        """
-        Returns the assembly time related to given time step.
-        The registered fields (inputs) should be evaluated in this time.
-
-        :param TimeStep tstep: Solution step
-        :return: Assembly time
-        :rtype: float, TimeStep
-        """
-        # TODO: What is are the units? How will this be evaluated?
-        return 1
-
-    def storeState(self, tstep):
-        """
-        Store the solution state of an application.
-
-        :param TimeStep tstep: Solution step
-        """
-        # TODO: Is this possible on our case?
-
-    def restoreState(self, tstep):
-        """
-        Restore the saved state of an application.
-        :param TimeStep tstep: Solution step
-        """
-        # TODO: Is this possible on our case?
 
     def getAPIVersion(self):
         """
