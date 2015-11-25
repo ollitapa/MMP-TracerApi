@@ -26,6 +26,8 @@ setup(name='mmp_tracer_api',
       entry_points={
           'console_scripts':
           ['runTracerServer = mmp_tracer_api.tracerServer:main',
+           'runTracerServerSingle=mmp_tracer_api.' +
+           'tracerServer:runSingleServerInstance',
            'killTracerServer = mmp_tracer_api.killTracerServer:main']
       },
       package_data={'mmp_tracer_api':
