@@ -21,3 +21,6 @@ All can be installed from PYPI using ```pip install <pakage>```. For windows goo
 
 ### Examples
 See the [Wiki](https://github.com/ollitapa/MMP-TracerApi/wiki)
+
+### Acknowledgements
+This research has received funding from the European Union's 7th Framework Programme (FP7-NMP) under NMP-2013-1.4-1 with grant agreement no. 604279
