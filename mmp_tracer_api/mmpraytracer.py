@@ -24,7 +24,9 @@ from pkg_resources import resource_filename
 import Pyro4
 from mupif import APIError
 from mupif import Property, Field, Mesh
-from mupif import PropertyID, FieldID, FunctionID
+from mupif import FunctionID, FieldID, PropertyID
+#from mupif.fieldID import FieldID
+#from mupif.propertyID import PropertyID
 from mupif import TimeStep
 from mupif import ValueType
 from mupif.Application import Application
@@ -40,7 +42,8 @@ import interpolationSupport as interP
 import objID
 import logging
 import logging.config
-
+from pyraytracer import detectorTools as dt
+from pyraytracer import fileTools as ft
 
 # create logger
 logging.config.fileConfig(resource_filename(__name__, 'data/logging.conf'),
@@ -61,6 +64,11 @@ Pyro4.config.SERIALIZER = 'pickle'
 PropertyID.PID_RefractiveIndex = "PID_RefractiveIndex"
 PropertyID.PID_NumberOfRays = "PID_NumberOfRays"
 PropertyID.PID_LEDSpectrum = "PID_LEDSpectrum"
+PropertyID.PID_ChipSpectrum = "PID_ChipSpectrum"
+PropertyID.PID_LEDColor_x = "PID_LEDColor_x"
+PropertyID.PID_LEDColor_y = "PID_LEDColor_y"
+PropertyID.PID_LEDCCT = "PID_LEDCCT"
+PropertyID.PID_LEDRadiantPower = "PID_LEDRadiantPower"
 PropertyID.PID_ParticleNumberDensity = "PID_ParticleNumberDensity"
 PropertyID.PID_ParticleRefractiveIndex = "PID_ParticleRefractiveIndex"
 PropertyID.PID_EmissionSpectrum = "PID_EmissionSpectrum"
@@ -92,7 +100,6 @@ class MMPRaytracer(Application):
     def __init__(self, file, workdir='.'):
         super(MMPRaytracer, self).__init__(file, workdir)  # call base
         os.chdir(workdir)
-        # logger.warn('Testi!!!!!')
 
         # Containers
         # Properties
@@ -419,9 +426,9 @@ class MMPRaytracer(Application):
                 for item in parent:
                     item["rays"] = prop.getValue()
 
-            elif(key[0] == PropertyID.PID_LEDSpectrum and
+            elif(key[0] == PropertyID.PID_ChipSpectrum and
                  key[2] == tstep):
-                print("PID_LEDSpectrum, ", prop.getValue())
+                print("PID_ChipSpectrum, ", prop.getValue())
                 parent = self._jsondata['sources']
                 for item in parent:
                     item["wavelengths"] = prop.getValue()[
@@ -554,15 +561,52 @@ class MMPRaytracer(Application):
         f = self.fields[key]
 
         # Convert point data to field mesh
-        if False:  # meshS.FASTisAvailable():
+        if meshS.FASTisAvailable():
             meshS.convertPointDataToMeshFAST(
                 pointdataVTKfile=self._absorptionFilePath,
                 field=f, inplace=True)
         else:
-            meshS.convertPointDataToMesh(points, absorb, f, inplace=True)
+            #meshS.convertPointDataToMesh(points, absorb, f, inplace=True)
+            pass
 
         # Read line data (if needed): (TODO: not tested)
         # (pts, wv, offs) = vtkS.readLineData("ray_paths.vtp")
+
+        # Read photometric data from overall detector
+        df = ft.loadDetectorData('AllDetector_1_LED.bin')
+        data = dt.convertToSphere(df)
+
+        # Set data to properties
+        # Spectrum
+        key = (PropertyID.PID_LEDSpectrum, objID.OBJ_LED,
+               self._curTStep)
+        p = self.properties[key]
+        p.value['wavelengths'] = data['wavelengths']
+        p.value['intensities'] = data['intensities']
+
+        # Color x
+        key = (PropertyID.PID_LEDColor_x, objID.OBJ_LED,
+               self._curTStep)
+        p = self.properties[key]
+        p.value = data['color_x']
+
+        # Color y
+        key = (PropertyID.PID_LEDColor_y, objID.OBJ_LED,
+               self._curTStep)
+        p = self.properties[key]
+        p.value = data['color_y']
+
+        # CCT
+        key = (PropertyID.PID_LEDCCT, objID.OBJ_LED,
+               self._curTStep)
+        p = self.properties[key]
+        p.value = data['CCT']
+
+        # RadPower
+        key = (PropertyID.PID_LEDRadiantPower, objID.OBJ_LED,
+               self._curTStep)
+        p = self.properties[key]
+        p.value = data['radPower']
 
     def _runCallback(self, pHandle, callback):
         '''
@@ -578,6 +622,7 @@ class MMPRaytracer(Application):
         with pHandle.stderr:
             for line in iter(pHandle.stderr.readline, ''):
                 lines.extend([line.rstrip()])
+        # print(lines)
         pHandle.wait()
         callback(lines)
         return

@@ -127,6 +127,11 @@ def interpolateProperty(properties, time, propertyID, objectID,
     p_min = properties[(propertyID, objectID, idx_tstep[Min].max())]
     p_max = properties[(propertyID, objectID, idx_tstep[Max].min())]
 
+    # Dictinary not supported
+    if type(p_max.value) == dict:
+        logger.warning('Interpolation of (dict) not supported! Returning max.')
+        return(p_max)
+
     # Interpolate property value.
     if method == 'linear':
         newValue = p_min.value + (p_max.value - p_min.value) / 2.0

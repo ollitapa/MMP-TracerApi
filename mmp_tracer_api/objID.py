@@ -21,4 +21,5 @@ OBJ_CHIP_SUBSTRATE = 3
 OBJ_CHIP_N = 6
 OBJ_CHIP_P = 4
 OBJ_PARTICLE_TYPE_1 = 11
+OBJ_LED = 12
 #############################

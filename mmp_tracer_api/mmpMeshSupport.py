@@ -199,7 +199,7 @@ def convertPointDataToMeshFAST(pointdataVTKfile, field, inplace=True):
     v.tofile(f_mesh)
 
     logger.debug("Conversion process starting...")
-    status = subprocess.check_output(
+    status = subprocess.check_call(
         ["abs2grid", f_mesh, pointdataVTKfile, '_abs'])
     print(status)
     if status == 0:

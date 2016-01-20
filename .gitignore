@@ -72,3 +72,4 @@ Geometry.stl
 Tests/plotRandomExEm.py
 Tests/input.json
 *.xxx
+Tests/LocalTest3/*

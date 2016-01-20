@@ -121,17 +121,73 @@ def initialProps(props, jsondata, pID=PropertyID):
     props.set_value(key, nr)
 
     # LED spectrum
+    nr = Property.Property(value={"wavelengths": np.array([450]),
+                                  "intensities": np.array([0])},
+                           propID=pID.PID_LEDSpectrum,
+                           valueType="dict",
+                           time=0.0,
+                           units=None,
+                           objectID=objID.OBJ_LED)
+
+    key = (pID.PID_LEDSpectrum, objID.OBJ_LED, 0)
+    props.set_value(key, nr)
+
+    # Chip spectrum
     v1 = jsondata['sources'][0]['wavelengths']
     v2 = jsondata['sources'][0]['intensities']
     nr = Property.Property(value={"wavelengths": np.array(v1),
                                   "intensities": np.array(v2)},
-                           propID=pID.PID_LEDSpectrum,
+                           propID=pID.PID_ChipSpectrum,
                            valueType="dict",
                            time=0.0,
                            units=None,
                            objectID=objID.OBJ_CHIP_ACTIVE_AREA)
 
-    key = (pID.PID_LEDSpectrum, objID.OBJ_CHIP_ACTIVE_AREA, 0)
+    key = (pID.PID_ChipSpectrum, objID.OBJ_CHIP_ACTIVE_AREA, 0)
+    props.set_value(key, nr)
+
+    # Color X
+    nr = Property.Property(value=0,
+                           propID=pID.PID_LEDColor_x,
+                           valueType=ValueType.Scalar,
+                           time=0.0,
+                           units=None,
+                           objectID=objID.OBJ_LED)
+
+    key = (pID.PID_LEDColor_x, objID.OBJ_LED, 0)
+    props.set_value(key, nr)
+
+    # Color Y
+    nr = Property.Property(value=0,
+                           propID=pID.PID_LEDColor_y,
+                           valueType=ValueType.Scalar,
+                           time=0.0,
+                           units=None,
+                           objectID=objID.OBJ_LED)
+
+    key = (pID.PID_LEDColor_y, objID.OBJ_LED, 0)
+    props.set_value(key, nr)
+
+    # CCT
+    nr = Property.Property(value=0,
+                           propID=pID.PID_LEDCCT,
+                           valueType=ValueType.Scalar,
+                           time=0.0,
+                           units=None,
+                           objectID=objID.OBJ_LED)
+
+    key = (pID.PID_LEDCCT, objID.OBJ_LED, 0)
+    props.set_value(key, nr)
+
+    # RadiantPower
+    nr = Property.Property(value=0,
+                           propID=pID.PID_LEDRadiantPower,
+                           valueType=ValueType.Scalar,
+                           time=0.0,
+                           units=None,
+                           objectID=objID.OBJ_LED)
+
+    key = (pID.PID_LEDRadiantPower, objID.OBJ_LED, 0)
     props.set_value(key, nr)
 
     # print(type(props[key].value))
