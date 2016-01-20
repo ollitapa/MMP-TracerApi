@@ -75,6 +75,9 @@ if __name__ == '__main__':
     tracerApp = MMPRaytracer('localhost')
     comsolApp = MMPComsolDummy('localhost')
 
+    # Point data conversion to false. Speeds up testing
+    tracerApp._convertPointData = False
+
     # Set default LED json
     tracerApp.setDefaultInputFile('../DefaultLED.json')
 

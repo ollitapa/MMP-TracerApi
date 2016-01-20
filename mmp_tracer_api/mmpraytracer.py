@@ -96,6 +96,7 @@ class MMPRaytracer(Application):
     _rayFilePath = "AllDetector_1_Pallo.bin"
 
     _curTStep = -1
+    _convertPointData = True
 
     def __init__(self, file, workdir='.'):
         super(MMPRaytracer, self).__init__(file, workdir)  # call base
@@ -561,13 +562,13 @@ class MMPRaytracer(Application):
         f = self.fields[key]
 
         # Convert point data to field mesh
-        if meshS.FASTisAvailable():
-            meshS.convertPointDataToMeshFAST(
-                pointdataVTKfile=self._absorptionFilePath,
-                field=f, inplace=True)
-        else:
-            #meshS.convertPointDataToMesh(points, absorb, f, inplace=True)
-            pass
+        if self._convertPointData:
+            if meshS.FASTisAvailable():
+                meshS.convertPointDataToMeshFAST(
+                    pointdataVTKfile=self._absorptionFilePath,
+                    field=f, inplace=True)
+            else:
+                meshS.convertPointDataToMesh(points, absorb, f, inplace=True)
 
         # Read line data (if needed): (TODO: not tested)
         # (pts, wv, offs) = vtkS.readLineData("ray_paths.vtp")
