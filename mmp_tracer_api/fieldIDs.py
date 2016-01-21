@@ -1,5 +1,5 @@
 #
-# Copyright 2015 VTT Technical Research Center of Finland
+# Copyright 2016 VTT Technical Research Center of Finland
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,6 +14,19 @@
 # limitations under the License.
 #
 
-from .mmpraytracer import MMPRaytracer
-from .fieldIDs import FieldID
-from .propertyIDs import PropertyID
+"""
+Module defining FieldID as enumeration, e.g. concentration, velocity.
+class Enum allows accessing members by .name and .value
+"""
+
+from enum import Enum
+
+
+class FieldID(Enum):
+    """
+    Enumeration class  defining Field IDs.
+    These are used to uniquely determine
+    the canonical keywords identifiing individual properties.
+    """
+    FID_HeatSourceVol = 1
+    FID_HeatSourceSurf = 2
