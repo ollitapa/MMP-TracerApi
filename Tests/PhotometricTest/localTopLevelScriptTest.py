@@ -15,10 +15,10 @@
 #
 
 from mmp_mie_api import MMPMie
-from mmp_tracer_api import MMPRaytracer, objID
+from mmp_tracer_api import MMPRaytracer, objID, PropertyID, FieldID
 from comsol_api import MMPComsolDummy
 
-from mupif import PropertyID, FieldID, FunctionID, Property, ValueType
+from mupif import FunctionID, Property, ValueType
 import logging
 import logging.config
 import ex_em_import
@@ -30,28 +30,6 @@ import os
 if not os.path.isdir('runFolder'):
     os.mkdir('runFolder')
 os.chdir('runFolder')
-
-### FID and PID definitions untill implemented at mupif###
-PropertyID.PID_RefractiveIndex = "PID_RefractiveIndex"
-PropertyID.PID_NumberOfRays = "PID_NumberOfRays"
-PropertyID.PID_LEDSpectrum = "PID_LEDSpectrum"
-PropertyID.PID_ChipSpectrum = "PID_ChipSpectrum"
-PropertyID.PID_LEDColor_x = "PID_LEDColor_x"
-PropertyID.PID_LEDColor_y = "PID_LEDColor_y"
-PropertyID.PID_LEDCCT = "PID_LEDCCT"
-PropertyID.PID_LEDRadiantPower = "PID_LEDRadiantPower"
-PropertyID.PID_ParticleNumberDensity = "PID_ParticleNumberDensity"
-PropertyID.PID_ParticleRefractiveIndex = "PID_ParticleRefractiveIndex"
-PropertyID.PID_EmissionSpectrum = "PID_EmissionSpectrum"
-PropertyID.PID_ExcitationSpectrum = "PID_ExcitationSpectrum"
-PropertyID.PID_AsorptionSpectrum = "PID_AsorptionSpectrum"
-
-PropertyID.PID_ScatteringCrossSections = "PID_ScatteringCrossSections"
-PropertyID.PID_InverseCumulativeDist = "PID_InverseCumulativeDist"
-
-FieldID.FID_HeatSourceVol = "FID_HeatSourceVol"
-FieldID.FID_HeatSourceSurf = "FID_HeatSourceSurf"
-##########################################################
 
 
 if __name__ == '__main__':

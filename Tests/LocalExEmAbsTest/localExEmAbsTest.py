@@ -1,29 +1,13 @@
-from mmp_tracer_api import MMPRaytracer, objID
+from mmp_tracer_api import MMPRaytracer, objID, PropertyID, FieldID
 from mmp_mie_api import MMPMie
 from comsol_api import MMPComsolDummy
-from mupif import Property, PropertyID, FieldID, ValueType
+from mupif import Property,  ValueType
 import logging
 import ex_em_import
 
 if __name__ == '__main__':
 
     logger = logging.getLogger()
-
-    ### FID and PID definitions untill implemented at mupif###
-    PropertyID.PID_RefractiveIndex = 22
-    PropertyID.PID_NumberOfRays = 23
-    PropertyID.PID_LEDSpectrum = 24
-    PropertyID.PID_ParticleNumberDensity = 25
-    PropertyID.PID_ParticleRefractiveIndex = 26
-    PropertyID.PID_EmissionSpectrum = 2121
-    PropertyID.PID_ExcitationSpectrum = 2222
-    PropertyID.PID_AsorptionSpectrum = 2323
-
-    PropertyID.PID_ScatteringCrossSections = 28
-    PropertyID.PID_InverseCumulativeDist = 29
-
-    FieldID.FID_HeatSourceVol = 33
-    ##########################################################
 
     import time as timeTime
     start = timeTime.time()
@@ -37,6 +21,9 @@ if __name__ == '__main__':
     print(mieApp)
     print(tracerApp)
     print(comsolApp)
+
+    # Point data conversion to false. Speeds up testing
+    tracerApp._convertPointData = False
 
     # Connect functions
 

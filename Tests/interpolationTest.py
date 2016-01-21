@@ -15,31 +15,13 @@
 #
 
 from mmp_mie_api import MMPMie
-from mmp_tracer_api import MMPRaytracer, objID
+from mmp_tracer_api import MMPRaytracer, objID, PropertyID, FieldID
 from comsol_api import MMPComsolDummy
 import numpy as np
 
-from mupif import PropertyID, FieldID, Property, ValueType
+from mupif import Property, ValueType
 import logging
 import logging.config
-
-
-### FID and PID definitions untill implemented at mupif###
-PropertyID.PID_RefractiveIndex = "PID_RefractiveIndex"
-PropertyID.PID_NumberOfRays = "PID_NumberOfRays"
-PropertyID.PID_LEDSpectrum = "PID_LEDSpectrum"
-PropertyID.PID_ParticleNumberDensity = "PID_ParticleNumberDensity"
-PropertyID.PID_ParticleRefractiveIndex = "PID_ParticleRefractiveIndex"
-PropertyID.PID_EmissionSpectrum = "PID_EmissionSpectrum"
-PropertyID.PID_ExcitationSpectrum = "PID_ExcitationSpectrum"
-PropertyID.PID_AsorptionSpectrum = "PID_AsorptionSpectrum"
-
-PropertyID.PID_ScatteringCrossSections = "PID_ScatteringCrossSections"
-PropertyID.PID_InverseCumulativeDist = "PID_InverseCumulativeDist"
-
-FieldID.FID_HeatSourceVol = "FID_HeatSourceVol"
-FieldID.FID_HeatSourceSurf = "FID_HeatSourceSurf"
-##########################################################
 
 
 if __name__ == '__main__':

@@ -15,38 +15,24 @@
 #
 
 from mmp_mie_api import MMPMie
-from mmp_tracer_api import MMPRaytracer, objID
+from mmp_tracer_api import MMPRaytracer, objID, PropertyID, FieldID
 from comsol_api import MMPComsolDummy
 
-from mupif import PropertyID, FieldID, FunctionID, Property, ValueType
+from mupif import FunctionID, Property, ValueType
 import logging
 import logging.config
 import ex_em_import
+import os
 
-
-### FID and PID definitions untill implemented at mupif###
-PropertyID.PID_RefractiveIndex = "PID_RefractiveIndex"
-PropertyID.PID_NumberOfRays = "PID_NumberOfRays"
-PropertyID.PID_LEDSpectrum = "PID_LEDSpectrum"
-PropertyID.PID_ParticleNumberDensity = "PID_ParticleNumberDensity"
-PropertyID.PID_ParticleRefractiveIndex = "PID_ParticleRefractiveIndex"
-PropertyID.PID_EmissionSpectrum = "PID_EmissionSpectrum"
-PropertyID.PID_ExcitationSpectrum = "PID_ExcitationSpectrum"
-PropertyID.PID_AsorptionSpectrum = "PID_AsorptionSpectrum"
-
-PropertyID.PID_ScatteringCrossSections = "PID_ScatteringCrossSections"
-PropertyID.PID_InverseCumulativeDist = "PID_InverseCumulativeDist"
-
-FieldID.FID_HeatSourceVol = "FID_HeatSourceVol"
-FieldID.FID_HeatSourceSurf = "FID_HeatSourceSurf"
-##########################################################
-
+if not os.path.isdir('runFolder'):
+    os.mkdir('runFolder')
+os.chdir('runFolder')
 
 if __name__ == '__main__':
 
     # create a new logger, MMPRaytracer class creates a logger
     # that logs at the INFO-level. Use this place to set for debug level.
-    logging.config.fileConfig('../loggingNew.conf')
+    logging.config.fileConfig('../../loggingNew.conf')
 
     logger = logging.getLogger('mmpraytracer')
     print("#######################################")
@@ -63,8 +49,11 @@ if __name__ == '__main__':
     tracerApp = MMPRaytracer('localhost')
     comsolApp = MMPComsolDummy('localhost')
 
+    # Point data conversion to false. Speeds up testing
+    tracerApp._convertPointData = False
+
     # Set default LED json
-    tracerApp.setDefaultInputFile('DefaultLED.json')
+    tracerApp.setDefaultInputFile('../DefaultLED.json')
 
     # Connect functions
     pScat = mieApp.getProperty(PropertyID.PID_ScatteringCrossSections, 0,
@@ -84,7 +73,7 @@ if __name__ == '__main__':
 
     # Connect properties
     # Particle density
-    vDens = 0.00000003400
+    vDens = 0.00003400
     pDens = Property.Property(value=vDens,
                               propID=PropertyID.PID_ParticleNumberDensity,
                               valueType=ValueType.Scalar,
@@ -94,7 +83,7 @@ if __name__ == '__main__':
     tracerApp.setProperty(pDens)
 
     # Number of rays to trace
-    pRays = Property.Property(value=100,
+    pRays = Property.Property(value=100000,
                               propID=PropertyID.PID_NumberOfRays,
                               valueType=ValueType.Scalar,
                               time=0.0,

@@ -1,29 +1,17 @@
-from mmp_tracer_api import MMPRaytracer, objID
+from mmp_tracer_api import MMPRaytracer, objID, PropertyID, FieldID
 from mmp_mie_api import MMPMie
 from comsol_api import MMPComsolDummy
-from mupif import Property, PropertyID, FieldID, ValueType
+from mupif import Property, ValueType
 import logging
+import os
+
+if not os.path.isdir('runFolder'):
+    os.mkdir('runFolder')
+os.chdir('runFolder')
 
 if __name__ == '__main__':
 
     logger = logging.getLogger()
-
-    ### FID and PID definitions untill implemented at mupif###
-    PropertyID.PID_RefractiveIndex = "PID_RefractiveIndex"
-    PropertyID.PID_NumberOfRays = "PID_NumberOfRays"
-    PropertyID.PID_LEDSpectrum = "PID_LEDSpectrum"
-    PropertyID.PID_ParticleNumberDensity = "PID_ParticleNumberDensity"
-    PropertyID.PID_ParticleRefractiveIndex = "PID_ParticleRefractiveIndex"
-    PropertyID.PID_EmissionSpectrum = "PID_EmissionSpectrum"
-    PropertyID.PID_ExcitationSpectrum = "PID_ExcitationSpectrum"
-    PropertyID.PID_AsorptionSpectrum = "PID_AsorptionSpectrum"
-
-    PropertyID.PID_ScatteringCrossSections = "PID_ScatteringCrossSections"
-    PropertyID.PID_InverseCumulativeDist = "PID_InverseCumulativeDist"
-
-    FieldID.FID_HeatSourceVol = "FID_HeatSourceVol"
-    FieldID.FID_HeatSourceSurf = "FID_HeatSourceSurf"
-    ##########################################################
 
     import time as timeTime
     start = timeTime.time()
@@ -37,6 +25,9 @@ if __name__ == '__main__':
     print(mieApp)
     print(tracerApp)
     print(comsolApp)
+
+    # Point data conversion to false. Speeds up testing
+    tracerApp._convertPointData = False
 
     # Connect functions
 
