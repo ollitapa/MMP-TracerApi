@@ -24,9 +24,10 @@ from pkg_resources import resource_filename
 import Pyro4
 from mupif import APIError
 from mupif import Property, Field, Mesh
-from mupif import FunctionID, FieldID, PropertyID
-#from mupif.fieldID import FieldID
-#from mupif.propertyID import PropertyID
+from mupif import FunctionID
+from .fieldIDs import FieldID
+from .propertyIDs import PropertyID
+
 from mupif import TimeStep
 from mupif import ValueType
 from mupif.Application import Application
@@ -59,28 +60,6 @@ logger = logging.getLogger('mmpraytracer')
 sys.excepthook = Pyro4.util.excepthook
 Pyro4.config.SERIALIZERS_ACCEPTED = ['pickle', 'serpent', 'json']
 Pyro4.config.SERIALIZER = 'pickle'
-
-### FID and PID definitions untill implemented at mupif###
-PropertyID.PID_RefractiveIndex = "PID_RefractiveIndex"
-PropertyID.PID_NumberOfRays = "PID_NumberOfRays"
-PropertyID.PID_LEDSpectrum = "PID_LEDSpectrum"
-PropertyID.PID_ChipSpectrum = "PID_ChipSpectrum"
-PropertyID.PID_LEDColor_x = "PID_LEDColor_x"
-PropertyID.PID_LEDColor_y = "PID_LEDColor_y"
-PropertyID.PID_LEDCCT = "PID_LEDCCT"
-PropertyID.PID_LEDRadiantPower = "PID_LEDRadiantPower"
-PropertyID.PID_ParticleNumberDensity = "PID_ParticleNumberDensity"
-PropertyID.PID_ParticleRefractiveIndex = "PID_ParticleRefractiveIndex"
-PropertyID.PID_EmissionSpectrum = "PID_EmissionSpectrum"
-PropertyID.PID_ExcitationSpectrum = "PID_ExcitationSpectrum"
-PropertyID.PID_AsorptionSpectrum = "PID_AsorptionSpectrum"
-
-PropertyID.PID_ScatteringCrossSections = "PID_ScatteringCrossSections"
-PropertyID.PID_InverseCumulativeDist = "PID_InverseCumulativeDist"
-
-FieldID.FID_HeatSourceVol = "FID_HeatSourceVol"
-FieldID.FID_HeatSourceSurf = "FID_HeatSourceSurf"
-##########################################################
 
 
 class MMPRaytracer(Application):

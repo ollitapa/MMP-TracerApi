@@ -19,10 +19,10 @@ Module defining PropertyID as enumeration, e.g. concentration, velocity.
 class Enum allows accessing members by .name and .value
 """
 
-from enum import Enum
+from enum import IntEnum
 
 
-class PropertyID(Enum):
+class PropertyID(IntEnum):
     """
     Enumeration class  defining Property IDs.
     These are used to uniquely determine

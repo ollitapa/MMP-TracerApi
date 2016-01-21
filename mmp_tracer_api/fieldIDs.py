@@ -19,10 +19,10 @@ Module defining FieldID as enumeration, e.g. concentration, velocity.
 class Enum allows accessing members by .name and .value
 """
 
-from enum import Enum
+from enum import IntEnum
 
 
-class FieldID(Enum):
+class FieldID(IntEnum):
     """
     Enumeration class  defining Field IDs.
     These are used to uniquely determine
@@ -30,3 +30,4 @@ class FieldID(Enum):
     """
     FID_HeatSourceVol = 1
     FID_HeatSourceSurf = 2
+    FID_Temperature = 3
