@@ -17,6 +17,7 @@ import importlib
 import argparse
 import sys
 import os
+import Pyro4
 from mupif import PyroUtil, JobManager as jb
 from mmp_tracer_api import MMPRaytracer
 import logging
@@ -118,6 +119,37 @@ def runSingleServerInstance():
                           cfg.appName,
                           cfg.hkey,
                           app=app)
+
+
+def runSingleServerInstanceNoNat():
+    # Parse arguments
+    args = parser.parse_args()
+    sys.path.append(os.getcwd())
+
+    # Load config
+    conf = args.configFile
+    if conf[-3:] == '.py':
+        conf = conf[:-3]
+    print(conf)
+
+    cfg = importlib.import_module(conf)
+
+    app = MMPRaytracer('localhost')
+
+    # Creates deamon, register the app in it
+    daemon = Pyro4.Daemon(host=cfg.server,
+                          port=cfg.serverPort)
+    uri = daemon.register(app)
+
+    # Get nameserver
+    ns = Pyro4.locateNS(host=cfg.nshost, port=cfg.nsport, hmac_key=cfg.hkey)
+    # Register app
+    ns.register(cfg.appName, uri)
+
+    print(uri)
+    # Deamon loops at the end
+    daemon.requestLoop()
+
 
 if __name__ == '__main__':
     main()
