@@ -30,6 +30,8 @@ setup(name='mmp_tracer_api',
            'tracerServer:runSingleServerInstance',
            'runTracerServerSingleNoNat=mmp_tracer_api.' +
            'tracerServer:runSingleServerInstanceNoNat',
+           'runTracerServerSingleSSHtunnel=mmp_tracer_api.' +
+           'tracerServer:runSingleServerInstanceSSHtunnel',
            'killTracerServer = mmp_tracer_api.killTracerServer:main']
       },
       package_data={'mmp_tracer_api':
