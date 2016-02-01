@@ -25,7 +25,7 @@
             "surfaceProperties": [],
             "detectors": [{
                 "type": "AllDetector",
-                "name": "LEDLayerNoSilicone"
+                "name": "LED"
             }]
         }, {
             "name": "Case",
