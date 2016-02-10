@@ -180,7 +180,7 @@ def convertPointDataToMeshFAST(pointdataVTKfile, field, inplace=True):
         Field where the points have been inserted.
 
     '''
-    logger.debug("Converting point data to mesh (cells=%d)..." % (
+    logger.info("Converting point data to mesh (cells=%d)..." % (
         field.getMesh().getNumberOfCells()))
 
     if not inplace:
@@ -198,19 +198,21 @@ def convertPointDataToMeshFAST(pointdataVTKfile, field, inplace=True):
     f_mesh = 'mesh_data_tmp.vtk'
     v.tofile(f_mesh)
 
-    logger.debug("Conversion process starting...")
+    logger.info("Conversion process starting...")
     status = subprocess.check_call(
         ["abs2grid", f_mesh, pointdataVTKfile, '_abs'])
     print(status)
     if status == 0:
-        logger.debug("Conversion process done!")
+        logger.info("Conversion process done!")
         a = np.loadtxt("AbsorptionGrid__abs.txt")
         print(len(a))
         print(len(f.values))
-        f.values = a
+        for i, v in zip(range(len(a)), a):
+            f.setValue(i, v)
+        logger.info("Absorbed power: %f" % np.sum(f.values))
 
     else:
-        logger.debug("Conversion failed")
+        logger.info("Conversion failed")
 
     return(f)
 

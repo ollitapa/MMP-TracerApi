@@ -550,6 +550,8 @@ class MMPRaytracer(Application):
             for line in lines:
                 logger.debug(line)
             logger.info("Tracing was not successful!")
+            logger.debug(lines)
+            print(lines)
             # raise APIError.APIError("Tracing was not successful!")
 
         # Read absorption data
