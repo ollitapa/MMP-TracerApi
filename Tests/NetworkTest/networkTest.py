@@ -6,21 +6,6 @@ from mupif import PyroUtil, Property, PropertyID, FieldID, ValueType
 import logging
 logger = logging.getLogger()
 
-PropertyID.PID_RefractiveIndex = "PID_RefractiveIndex"
-PropertyID.PID_NumberOfRays = "PID_NumberOfRays"
-PropertyID.PID_LEDSpectrum = "PID_LEDSpectrum"
-PropertyID.PID_ParticleNumberDensity = "PID_ParticleNumberDensity"
-PropertyID.PID_ParticleRefractiveIndex = "PID_ParticleRefractiveIndex"
-PropertyID.PID_EmissionSpectrum = "PID_EmissionSpectrum"
-PropertyID.PID_ExcitationSpectrum = "PID_ExcitationSpectrum"
-PropertyID.PID_AsorptionSpectrum = "PID_AsorptionSpectrum"
-
-PropertyID.PID_ScatteringCrossSections = "PID_ScatteringCrossSections"
-PropertyID.PID_InverseCumulativeDist = "PID_InverseCumulativeDist"
-
-FieldID.FID_HeatSourceVol = "FID_HeatSourceVol"
-FieldID.FID_HeatSourceSurf = "FID_HeatSourceSurf"
-
 
 import time as timeTime
 start = timeTime.time()
@@ -63,6 +48,9 @@ mieApp = PyroUtil.connectApp(ns, cConf.mieID)
 tracerApp = PyroUtil.connectApp(ns, cConf.tracerID)
 comsolApp = PyroUtil.connectApp(ns, cConf.comsolID)
 
+# Point data conversion to false. Speeds up testing
+tracerApp._convertPointData = False
+
 logger.info('Applications loaded:')
 print(mieApp)
 print(tracerApp)
@@ -72,8 +60,8 @@ print(tracerApp)
 # Connect fields
 logger.info('Connecting Fields...')
 # old way to connect fields:
-fHeatSurf = comsolApp.getField(FieldID.FID_HeatSourceSurf, 0)
-fHeatVol = comsolApp.getField(FieldID.FID_HeatSourceVol, 0)
+fHeatSurf = comsolApp.getField(FieldID.FID_Thermal_absorption_surface, 0)
+fHeatVol = comsolApp.getField(FieldID.FID_Thermal_absorption_volume, 0)
 
 tracerApp.setField(fHeatSurf)
 tracerApp.setField(fHeatVol)

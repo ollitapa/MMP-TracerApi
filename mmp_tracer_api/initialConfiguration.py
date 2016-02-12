@@ -14,7 +14,8 @@
 # limitations under the License.
 #
 
-from mupif import FunctionID, PropertyID, FieldID, ValueType, Property, APIError
+from mupif import FunctionID, PropertyID, FieldID, ValueType
+from mupif import Property, APIError
 import objID
 import numpy as np
 
@@ -27,7 +28,7 @@ def checkRequiredFields(fields,  fID=FieldID):
     # TODO: Check!
     found = True
 
-    if fID.FID_HeatSourceVol not in fields.index:
+    if fID.FID_Thermal_absorption_volume not in fields.index:
         print("HeatSourceVol not found!")
         #found = False
 

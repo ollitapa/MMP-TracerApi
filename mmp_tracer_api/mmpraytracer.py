@@ -60,28 +60,6 @@ sys.excepthook = Pyro4.util.excepthook
 Pyro4.config.SERIALIZERS_ACCEPTED = ['pickle', 'serpent', 'json']
 Pyro4.config.SERIALIZER = 'pickle'
 
-### FID and PID definitions untill implemented at mupif###
-PropertyID.PID_RefractiveIndex = "PID_RefractiveIndex"
-PropertyID.PID_NumberOfRays = "PID_NumberOfRays"
-PropertyID.PID_LEDSpectrum = "PID_LEDSpectrum"
-PropertyID.PID_ChipSpectrum = "PID_ChipSpectrum"
-PropertyID.PID_LEDColor_x = "PID_LEDColor_x"
-PropertyID.PID_LEDColor_y = "PID_LEDColor_y"
-PropertyID.PID_LEDCCT = "PID_LEDCCT"
-PropertyID.PID_LEDRadiantPower = "PID_LEDRadiantPower"
-PropertyID.PID_ParticleNumberDensity = "PID_ParticleNumberDensity"
-PropertyID.PID_ParticleRefractiveIndex = "PID_ParticleRefractiveIndex"
-PropertyID.PID_EmissionSpectrum = "PID_EmissionSpectrum"
-PropertyID.PID_ExcitationSpectrum = "PID_ExcitationSpectrum"
-PropertyID.PID_AsorptionSpectrum = "PID_AsorptionSpectrum"
-
-PropertyID.PID_ScatteringCrossSections = "PID_ScatteringCrossSections"
-PropertyID.PID_InverseCumulativeDist = "PID_InverseCumulativeDist"
-
-FieldID.FID_HeatSourceVol = "FID_HeatSourceVol"
-FieldID.FID_HeatSourceSurf = "FID_HeatSourceSurf"
-##########################################################
-
 
 class MMPRaytracer(Application):
 
@@ -105,7 +83,8 @@ class MMPRaytracer(Application):
         # Containers
         # Properties
         # Key should be in form of tuple (propertyID, objectID, tstep)
-        idx = pd.MultiIndex.from_tuples([("propertyID", 1.0, 1.0)],
+        idx = pd.MultiIndex.from_tuples([(PropertyID.PID_LEDColor_x,
+                                          1.0, 1.0)],
                                         names=['propertyID',
                                                'objectID',
                                                'tstep'])
@@ -113,8 +92,9 @@ class MMPRaytracer(Application):
 
         # Fields
         # Key should be in form of tuple (fieldID, tstep)
-        idxf = pd.MultiIndex.from_tuples([("fieldID", 1.0)],
-                                         names=['fieldID', 'tstep'])
+        idxf = pd.MultiIndex.from_tuples(
+            [(FieldID.FID_Thermal_absorption_volume, 1.0)],
+            names=['fieldID', 'tstep'])
         self.fields = pd.Series(index=idxf, dtype=Field.Field)
 
         # Functions, simple dictionary
@@ -560,7 +540,7 @@ class MMPRaytracer(Application):
         # print(absorb)
 
         # Get field
-        key = (FieldID.FID_HeatSourceVol, self._curTStep)
+        key = (FieldID.FID_Thermal_absorption_volume, self._curTStep)
         f = self.fields[key]
 
         # Convert point data to field mesh
