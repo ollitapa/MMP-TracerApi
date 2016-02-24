@@ -84,9 +84,9 @@ if __name__ == '__main__':
 
     # Plot data to file
     logger.info("Saving vtk")
-    #v = fTemp.field2VTKData()
-    # v.tofile('testTemperature.vtk')
-    #v = fHeat.field2VTKData()
-    # v.tofile('testHeat.vtk')
+    fHeat2 = tracerApp.getField(FieldID.FID_Thermal_absorption_volume, 0)
+
+    v = fHeat2.field2VTKData()
+    v.tofile('testHeat.vtk')
 
     logger.debug("terminating apps...")
