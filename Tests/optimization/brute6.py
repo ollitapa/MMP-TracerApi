@@ -38,21 +38,13 @@ def xsim(z, *params):
 
     #Set refractive indexes to mieApp:
     pri = Property.Property(1.83,
-                            PropertyID.PID_ParticleRefractiveIndex,
+                            PropertyID.PID_RefractiveIndex,
                             valueType=ValueType.Scalar,
                             time=0.0,
                             units=None,
                             objectID=objID.OBJ_PARTICLE_TYPE_1)
     mieApp.setProperty(pri)
-    #same for particle_type_2
-    pri2 = Property.Property(1.84,
-                             PropertyID.PID_ParticleRefractiveIndex,
-                             valueType=ValueType.Scalar,
-                             time=0.0,
-                             units=None,
-                             objectID=objID.OBJ_PARTICLE_TYPE_2)
-    mieApp.setProperty(pri2)
-
+    
     hmri = Property.Property(1.55, PropertyID.PID_RefractiveIndex,
                              valueType=ValueType.Scalar,
                              time=0.0,
@@ -67,40 +59,10 @@ def xsim(z, *params):
     pPhase = mieApp.getProperty(PropertyID.PID_InverseCumulativeDist, 0,
                                 objectID=objID.OBJ_PARTICLE_TYPE_1)
 
-    #set also another particle type to MieApp:
-    pScat2 = Property.Property(0,
-                              PropertyID.PID_ScatteringCrossSections,
-                              valueType=ValueType.Vector,
-                              time=0.0,
-                              units=None,
-                              objectID=objID.OBJ_PARTICLE_TYPE_2)
-
-    pPhase2 = Property.Property(0,
-                            propID=PropertyID.PID_InverseCumulativeDist,
-                            valueType=ValueType.Vector,
-                            time=0.0,
-                            units=None,
-                            objectID=objID.OBJ_PARTICLE_TYPE_2)
-
-    mieApp.setProperty(pScat2)
-    mieApp.setProperty(pPhase2)
-
-    pS2 = mieApp.getProperty(PropertyID.PID_ScatteringCrossSections, 0.0,
-                               objectID=objID.OBJ_PARTICLE_TYPE_2)
-
-    pP2 = mieApp.getProperty(PropertyID.PID_InverseCumulativeDist, 0.0,
-                                objectID=objID.OBJ_PARTICLE_TYPE_2)
-
-    #TODO: These properties also for PARTICLE_TYPE_2...n !
-    #How MieApp knows how many particle types are in the sim?
-    # NEED NEW PID for numberOfFluorescentParticles !!!
-    #Set manually in top-level script, i.e., here, like above?
-
+    
     tracerApp.setProperty(pScat)
     tracerApp.setProperty(pPhase)
-    tracerApp.setProperty(pS2)
-    tracerApp.setProperty(pP2)
-
+    
     # Connect fields
     fTemp = comsolApp.getField(FieldID.FID_Temperature, 0)
     fHeat = comsolApp.getField(FieldID.FID_Thermal_absorption_volume, 0)
@@ -119,8 +81,6 @@ def xsim(z, *params):
     w_min = 100.0
     w_num = 1000
 
-    # Weight fractions
-    #weight_frac = np.array([24]) / 100.0 #CHANGING PARAMETER!See below
 
     # Particle density
     dens_p = 5.0  # g/cm3
@@ -152,10 +112,9 @@ def xsim(z, *params):
     tracerApp.setProperty(pRays)
     
 
-    #TODO: Should we have these spectrums for each particle_type 1, 2, ...n ?
 
     #TODO: replace PID with a new PID!!!!!    
-    n_particles = Property.Property(value=2,
+    n_particles = Property.Property(value=1,
                                     propID=PropertyID.PID_Demo_Value,
                                     valueType=ValueType.Scalar,
                                     time=0.0,
@@ -169,7 +128,7 @@ def xsim(z, *params):
                            valueType=ValueType.Scalar,
                            time=0.0,
                            units=None,
-                           objectID=objID.OBJ_CONE)
+                           objectID=objID.OBJ_PARTICLE_TYPE_1)
     tracerApp.setProperty(em)
 
     # Excitation spectrum
@@ -178,7 +137,7 @@ def xsim(z, *params):
                            valueType=ValueType.Scalar,
                            time=0.0,
                            units=None,
-                           objectID=objID.OBJ_CONE)
+                           objectID=objID.OBJ_PARTICLE_TYPE_1)
     tracerApp.setProperty(ex)
 
     # Absorption spectrum
@@ -187,7 +146,7 @@ def xsim(z, *params):
                              valueType=ValueType.Scalar,
                              time=0.0,
                              units=None,
-                             objectID=objID.OBJ_CONE)
+                             objectID=objID.OBJ_PARTICLE_TYPE_1)
     tracerApp.setProperty(aabs)
     
 
