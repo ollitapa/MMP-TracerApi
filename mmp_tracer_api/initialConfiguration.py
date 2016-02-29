@@ -27,8 +27,8 @@ def checkRequiredFields(fields,  fID=FieldID):
     # TODO: Check!
     found = True
 
-    if fID.FID_HeatSourceVol not in fields.index:
-        print("HeatSourceVol not found!")
+    if fID.FID_Thermal_absorption_volume not in fields.index:
+        print("Thermal_absorption_volume not found!")
         #found = False
 
     if not found:

@@ -60,28 +60,6 @@ sys.excepthook = Pyro4.util.excepthook
 Pyro4.config.SERIALIZERS_ACCEPTED = ['pickle', 'serpent', 'json']
 Pyro4.config.SERIALIZER = 'pickle'
 
-### FID and PID definitions untill implemented at mupif###
-PropertyID.PID_RefractiveIndex = "PID_RefractiveIndex"
-PropertyID.PID_NumberOfRays = "PID_NumberOfRays"
-PropertyID.PID_LEDSpectrum = "PID_LEDSpectrum"
-PropertyID.PID_ChipSpectrum = "PID_ChipSpectrum"
-PropertyID.PID_LEDColor_x = "PID_LEDColor_x"
-PropertyID.PID_LEDColor_y = "PID_LEDColor_y"
-PropertyID.PID_LEDCCT = "PID_LEDCCT"
-PropertyID.PID_LEDRadiantPower = "PID_LEDRadiantPower"
-PropertyID.PID_ParticleNumberDensity = "PID_ParticleNumberDensity"
-PropertyID.PID_ParticleRefractiveIndex = "PID_ParticleRefractiveIndex"
-PropertyID.PID_EmissionSpectrum = "PID_EmissionSpectrum"
-PropertyID.PID_ExcitationSpectrum = "PID_ExcitationSpectrum"
-PropertyID.PID_AsorptionSpectrum = "PID_AsorptionSpectrum"
-
-PropertyID.PID_ScatteringCrossSections = "PID_ScatteringCrossSections"
-PropertyID.PID_InverseCumulativeDist = "PID_InverseCumulativeDist"
-
-FieldID.FID_HeatSourceVol = "FID_HeatSourceVol"
-FieldID.FID_HeatSourceSurf = "FID_HeatSourceSurf"
-##########################################################
-
 
 class MMPRaytracer(Application):
 
@@ -136,7 +114,7 @@ class MMPRaytracer(Application):
         self._jsondata = json.load(f)
         f.close()
 
-        # Initialise the appp
+        # Initialise the app
         self._initialiseDefault()
 
         return
@@ -414,11 +392,12 @@ class MMPRaytracer(Application):
             # print(key)
             prop = self.properties[key]
 
+            
             if(key[0] == PropertyID.PID_RefractiveIndex and
-               key[2] == tstep):
+               key[2] == tstep and key[1] == objID.OBJ_CONE):
                 print("PID_RefractiveIndex, ", prop.getValue())
                 parent = self._jsondata['materials']
-                parent[1]["refractiveIndex"] = prop.getValue()
+                parent[3]["refractiveIndex"] = prop.getValue()
 
             elif(key[0] == PropertyID.PID_NumberOfRays and
                  key[2] == tstep):
@@ -442,12 +421,6 @@ class MMPRaytracer(Application):
                 print("PID_ParticleNumberDensity, ", prop.getValue())
                 parent = self._jsondata['materials']
                 parent[3]["particleDensities"] = [prop.getValue()]
-
-            elif(key[0] == PropertyID.PID_ParticleRefractiveIndex and
-                 key[2] == tstep):
-                print("PID_ParticleRefractiveIndex,", prop.getValue())
-                parent = self._jsondata['materials']
-                parent[1]["refractiveIndex"] = prop.getValue()
             elif(key[0] == PropertyID.PID_ScatteringCrossSections and
                  key[2] == tstep):
                 pass
@@ -456,6 +429,12 @@ class MMPRaytracer(Application):
                 pass
         # Datafiles:
         parent = self._jsondata['materials']
+
+        #TODO: need PID for this property!!!
+        n_particle_key = (PropertyID.PID_Demo_Value, objID.OBJ_CONE, tstep)
+        n_particles = self.properties[n_particle_key]
+        parent[3]['numberOfFluorescentParticles'] = n_particles.getValue()
+        print("n_particles=", n_particles.getValue(), parent[3]['numberOfFluorescentParticles'])
 
         # Properties containing emission spectrums
         if PropertyID.PID_EmissionSpectrum in\
@@ -471,10 +450,17 @@ class MMPRaytracer(Application):
                                              p["intensities"],
                                              fname)
                 em_fname.extend([fname])
+
             parent[3]["cumulativeEmissionSpectrumFilenames"] = em_fname
+            if len(em_fname) != n_particles.getValue():
+                raise APIError.APIError("Number of em spectrum file names (%d) does not match with number of fluorescent particles (%d)" % len(em_fname), n_particles.getValue())
         else:
-            parent[3]["cumulativeEmissionSpectrumFilenames"] = [
-                resource_filename(__name__, "data/InvCumul_EM_GREEN.dat")]
+            raise APIError.APIError("Did not find em spectrum file names in Properties!")
+            """
+            #loop over numberOfFluorParticles
+            for i in range(len(parent[3]["cumulativeEmissionSpectrumFilenames"]), n_particles.getValue()):
+                parent[3]["cumulativeEmissionSpectrumFilenames"].extend([resource_filename(__name__, "data/InvCumul_EM_GREEN.dat")])
+            """
 
         # Excitation spectrum property
         if PropertyID.PID_ExcitationSpectrum in\
@@ -485,16 +471,17 @@ class MMPRaytracer(Application):
             ex_fname = []
             for i, row in ex.iteritems():
                 p = row.getValue()
-                fname = 'InvCumul_EM_%d.dat' % i
+                fname = 'InvCumul_EX_%d.dat' % i
                 gS.writeExAbsSpectrumFile(p["wavelengths"],
                                           p["intensities"],
                                           fname)
                 ex_fname.extend([fname])
             parent[3]["excitationSpectrumFilenames"] = ex_fname
+            if len(ex_fname) != n_particles.getValue():
+                raise APIError.APIError("Number of ex spectrum file names (%d) does not match with number of fluorescent particles (%d)" % len(ex_fname), n_particles.getValue())
         else:
-            parent[3]["excitationSpectrumFilenames"] = [
-                resource_filename(__name__, "data/EX_GREEN.dat")]
-
+            raise APIError.APIError("Did not find ex spectrum file names in Properties!")
+            
         # Absorption spectrum property
         if PropertyID.PID_AsorptionSpectrum in\
                 self.properties.index.get_level_values('propertyID'):
@@ -505,15 +492,17 @@ class MMPRaytracer(Application):
             aabs_fname = []
             for i, row in aabs.iteritems():
                 p = row.getValue()
-                fname = 'InvCumul_EM_%d.dat' % i
+                fname = 'InvCumul_ABS_%d.dat' % i
                 gS.writeExAbsSpectrumFile(p["wavelengths"],
                                           p["intensities"],
                                           fname)
                 aabs_fname.extend([fname])
             parent[3]["absorptionSpectrumFilenames"] = aabs_fname
+            if len(aabs_fname) != n_particles.getValue():
+                raise APIError.APIError("Number of abs spectrum file names (%d) does not match with number of fluorescent particles (%d)" % len(aabs_fname), n_particles.getValue())
         else:
-            parent[3]["absorptionSpectrumFilenames"] = [
-                resource_filename(__name__, "data/Abs_GREEN.dat")]
+            raise APIError.APIError("Did not find abs spectrum file names in Properties!")
+            
 
         # write the json file:
         f = open('input.json', 'w')
@@ -549,8 +538,10 @@ class MMPRaytracer(Application):
         else:
             for line in lines:
                 logger.debug(line)
+            print(lines)
             logger.info("Tracing was not successful!")
-            # raise APIError.APIError("Tracing was not successful!")
+            raise APIError.APIError("Tracing was not successful!")
+            
 
         # Read absorption data
         (points, absorb) = vtkS.readAbsorptionData(self._absorptionFilePath)
@@ -558,7 +549,7 @@ class MMPRaytracer(Application):
         # print(absorb)
 
         # Get field
-        key = (FieldID.FID_HeatSourceVol, self._curTStep)
+        key = (FieldID.FID_Thermal_absorption_volume, self._curTStep)
         f = self.fields[key]
 
         # Convert point data to field mesh
@@ -632,33 +623,46 @@ class MMPRaytracer(Application):
 
         logger.debug("Getting mie data...")
 
-        # Get the Mie data
-        key = (PropertyID.PID_ScatteringCrossSections,
-               objID.OBJ_PARTICLE_TYPE_1,
-               tstep)
-
-        dataScat = self.properties[key].getValue()
-
-        key = (PropertyID.PID_InverseCumulativeDist,
-               objID.OBJ_PARTICLE_TYPE_1,
-               tstep)
-
-        dataCDF = self.properties[key].getValue()
+        
 
         # Wavelengths used
         # key = (PropertyID.PID_LEDSpectrum, objID.OBJ_CHIP_ACTIVE_AREA, 0)
         # wave = self.properties[key].getValue()['wavelengths']
-        # TODO: These should be same with MieAPI!!
+        # TODO: These should be same with MieAPI!! pidetaan vakioina!
         w_max = 1100.0
         w_min = 100.0
         w_num = 10
 
         wave = np.linspace(w_min, w_max, w_num)
 
+        
+
+        #Find scattering cross-sections and corresponding invCDF:
+
+        oids = []
+        scs = {}
+        icdf = {}
+        if PropertyID.PID_ScatteringCrossSections in\
+                self.properties.index.get_level_values('propertyID'):
+            sc = self.properties.xs((PropertyID.PID_ScatteringCrossSections,
+                                     tstep),
+                                     level=('propertyID', 'tstep'))
+
+           
+            for i, row in sc.iteritems():
+                sc_prop = row
+                oids.append(sc_prop.getObjectID())
+                scs[sc_prop.getObjectID()] =  sc_prop.getValue()
+                key = (PropertyID.PID_InverseCumulativeDist, sc_prop.getObjectID(), tstep)
+                icdf[sc_prop.getObjectID()] = self.properties[key].getValue()
+
+            
+      
+
         hdfS.writeMieDataHDF(wavelengths=wave,
-                             particle_diameters=[10],
-                             scatteringCrossSections={10: dataScat},
-                             inverseCDF={10: dataCDF},
+                             particle_diameters=oids,
+                             scatteringCrossSections=scs,
+                             inverseCDF=icdf,
                              out_fname='mieData.hdf5')
 
         logger.debug("Mie data ready!")
