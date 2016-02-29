@@ -120,7 +120,7 @@ def convertPointDataToMesh(points, values, field, inplace=True):
                         field.getFieldID(),
                         field.getValueType(),
                         field.getUnits(),
-                        field.time,
+                        field.getTime(),
                         field.values,
                         field.fieldType)
     else:
@@ -145,7 +145,7 @@ def convertPointDataToMesh(points, values, field, inplace=True):
 
         # Sum field values
         if len(elems) > 0:
-            f.setValue(j, v + f.values[j])
+            f.setValue(j, v + f.giveValue(j))
         else:
             pNfound += 1
 
@@ -205,11 +205,10 @@ def convertPointDataToMeshFAST(pointdataVTKfile, field, inplace=True):
     if status == 0:
         logger.info("Conversion process done!")
         a = np.loadtxt("AbsorptionGrid__abs.txt")
-        print(len(a))
-        print(len(f.values))
+
         for i, v in zip(range(len(a)), a):
             f.setValue(i, v)
-        logger.info("Absorbed power: %f" % np.sum(f.values))
+        logger.info("Absorbed power: %f" % np.sum(a))
 
     else:
         logger.info("Conversion failed")

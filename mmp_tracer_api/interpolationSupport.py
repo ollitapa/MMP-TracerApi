@@ -15,6 +15,7 @@
 #
 
 import pandas as pd
+import numpy as np
 from mupif import Field, Property
 import logging
 import logging.config
@@ -64,22 +65,33 @@ def interpolateFields(fields, time, fieldID, method='linear'):
     f_min = fields[(fieldID, idx_tstep[Min].max())]
     f_max = fields[(fieldID, idx_tstep[Max].min())]
 
+    f_min_vals = []
+    for i in range(f_min.getMesh().getNumberOfCells()):
+        f_min_vals.extend([f_min.giveValue(i)])
+    f_min_vals = np.array(f_min_vals)
+
+    f_max_vals = []
+    for i in range(f_max.getMesh().getNumberOfCells()):
+        f_max_vals.extend([f_max.giveValue(i)])
+    f_max_vals = np.array(f_max_vals)
+
     # Interpolate field values.
     if method == 'linear':
-        newValues = f_min.values + (f_max.values - f_min.values) / 2.0
+        newValues = f_min_vals + (f_max_vals - f_min_vals) / 2.0
     else:
         logger.warning(
             'Interpolation method (%s) not supported! Using linear.' % method)
-        newValues = f_min.values + (f_max.values - f_min.values) / 2.0
+        newValues = f_min_vals + (f_max_vals - f_min_vals) / 2.0
 
     # Create new field.
-    interpolatedField = Field.Field(f_min.mesh,
-                                    f_min.fieldID,
-                                    f_min.valueType,
-                                    units=f_min.units,
+    interpolatedField = Field.Field(f_min.getMesh(),
+                                    f_min.getFieldID(),
+                                    f_min.getValueType(),
+                                    units=f_min.getUnits(),
                                     values=newValues,
                                     time=time,
-                                    fieldType=f_min.fieldType)
+                                    fieldType=Field.FieldType.FT_cellBased)  # TODO: hack until Field.py exposes fieldType for mupif.
+
     # Return
     return(interpolatedField)
 
@@ -128,24 +140,26 @@ def interpolateProperty(properties, time, propertyID, objectID,
     p_max = properties[(propertyID, objectID, idx_tstep[Max].min())]
 
     # Dictinary not supported
-    if type(p_max.value) == dict:
+    if type(p_max.getValue()) == dict:
         logger.warning('Interpolation of (dict) not supported! Returning max.')
         return(p_max)
 
-    # Interpolate property value.
+    # Interpolate property getValue().
     if method == 'linear':
-        newValue = p_min.value + (p_max.value - p_min.value) / 2.0
+        newValue = p_min.getValue() + (p_max.getValue() -
+                                       p_min.getValue()) / 2.0
     else:
         logger.warning(
             'Interpolation method (%s) not supported! Using linear.' % method)
-        newValue = p_min.value + (p_max.value - p_min.value) / 2.0
+        newValue = p_min.getValue() + (p_max.getValue() -
+                                       p_min.getValue()) / 2.0
 
     # Create new property.
     newProp = Property.Property(value=newValue,
                                 propID=propertyID,
-                                valueType=p_min.valueType,
+                                valueType=p_min.valueType,  # TODO: Fix for pyro4
                                 time=time,
-                                units=p_min.units,
+                                units=p_min.getUnits(),
                                 objectID=objectID)
 
     return(newProp)

@@ -159,7 +159,7 @@ class MMPRaytracer(Application):
         """
 
         # Set the new property to container
-        key = (field.getFieldID(), field.time)
+        key = (field.getFieldID(), field.getTime())
         self.fields.set_value(key, field)
 
     def getProperty(self, propID, time, objectID=0):
@@ -205,7 +205,9 @@ class MMPRaytracer(Application):
         """
 
         # Set the new property to container
-        key = (newProp.getPropertyID(), newProp.objectID, newProp.time)
+        key = (newProp.getPropertyID(),
+               newProp.getObjectID(),
+               newProp.time)  # TODO: update to getTime for pyro4
         self.properties.set_value(key, newProp)
 
     def getMesh(self, tstep):
@@ -357,10 +359,11 @@ class MMPRaytracer(Application):
             key = (fID, g[fID])
             newKey = (fID, self._curTStep)
             f = self.fields[key]
-            newField = Field.Field(f.mesh,
-                                   f.fieldID,
-                                   f.valueType,
-                                   units=f.units,
+
+            newField = Field.Field(f.getMesh(),
+                                   f.getFieldID(),
+                                   f.getValueType(),
+                                   units=f.getUnits(),
                                    values=f.values,
                                    time=self._curTStep,
                                    fieldType=f.fieldType)
@@ -373,12 +376,12 @@ class MMPRaytracer(Application):
             key = (pID[0], pID[1], g[pID])
             newKey = (pID[0], pID[1], self._curTStep)
             p = self.properties[key]
-            newProp = Property.Property(value=p.value,
-                                        propID=p.propID,
+            newProp = Property.Property(value=p.getValue(),
+                                        propID=p.getPropertID(),
                                         valueType=p.valueType,
                                         time=self._curTStep,
-                                        units=p.units,
-                                        objectID=p.objectID)
+                                        units=p.getUnits(),
+                                        objectID=p.getObjectID())
             self.properties.set_value(newKey, newProp)
 
     def _writeInputJSON(self, tstep):
