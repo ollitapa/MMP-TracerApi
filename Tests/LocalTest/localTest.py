@@ -3,27 +3,15 @@ from mmp_mie_api import MMPMie
 from comsol_api import MMPComsolDummy
 from mupif import Property, PropertyID, FieldID, ValueType
 import logging
+import os
+
+if not os.path.isdir('runFolder'):
+    os.mkdir('runFolder')
+os.chdir('runFolder')
 
 if __name__ == '__main__':
 
     logger = logging.getLogger()
-
-    ### FID and PID definitions untill implemented at mupif###
-    PropertyID.PID_RefractiveIndex = "PID_RefractiveIndex"
-    PropertyID.PID_NumberOfRays = "PID_NumberOfRays"
-    PropertyID.PID_LEDSpectrum = "PID_LEDSpectrum"
-    PropertyID.PID_ParticleNumberDensity = "PID_ParticleNumberDensity"
-    PropertyID.PID_ParticleRefractiveIndex = "PID_ParticleRefractiveIndex"
-    PropertyID.PID_EmissionSpectrum = "PID_EmissionSpectrum"
-    PropertyID.PID_ExcitationSpectrum = "PID_ExcitationSpectrum"
-    PropertyID.PID_AsorptionSpectrum = "PID_AsorptionSpectrum"
-
-    PropertyID.PID_ScatteringCrossSections = "PID_ScatteringCrossSections"
-    PropertyID.PID_InverseCumulativeDist = "PID_InverseCumulativeDist"
-
-    FieldID.FID_HeatSourceVol = "FID_HeatSourceVol"
-    FieldID.FID_HeatSourceSurf = "FID_HeatSourceSurf"
-    ##########################################################
 
     import time as timeTime
     start = timeTime.time()
@@ -32,6 +20,9 @@ if __name__ == '__main__':
     mieApp = MMPMie('localhost')
     tracerApp = MMPRaytracer('localhost')
     comsolApp = MMPComsolDummy('localhost')
+
+    # Point data conversion to false. Speeds up testing
+    tracerApp._convertPointData = False
 
     logger.info('Applications loaded:')
     print(mieApp)
@@ -55,7 +46,7 @@ if __name__ == '__main__':
     # Connect fields
     logger.info('Connecting Fields...')
     fTemp = comsolApp.getField(FieldID.FID_Temperature, 0)
-    fHeat = comsolApp.getField(FieldID.FID_HeatSourceVol, 0)
+    fHeat = comsolApp.getField(FieldID.FID_Thermal_absorption_volume, 0)
 
     tracerApp.setField(fTemp)
     tracerApp.setField(fHeat)
@@ -93,9 +84,9 @@ if __name__ == '__main__':
 
     # Plot data to file
     logger.info("Saving vtk")
-    #v = fTemp.field2VTKData()
-    # v.tofile('testTemperature.vtk')
-    #v = fHeat.field2VTKData()
-    # v.tofile('testHeat.vtk')
+    fHeat2 = tracerApp.getField(FieldID.FID_Thermal_absorption_volume, 0)
+
+    v = fHeat2.field2VTKData()
+    v.tofile('testHeat.vtk')
 
     logger.debug("terminating apps...")

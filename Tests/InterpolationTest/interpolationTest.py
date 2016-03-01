@@ -22,31 +22,18 @@ import numpy as np
 from mupif import PropertyID, FieldID, Property, ValueType
 import logging
 import logging.config
+import os
 
-
-### FID and PID definitions untill implemented at mupif###
-PropertyID.PID_RefractiveIndex = "PID_RefractiveIndex"
-PropertyID.PID_NumberOfRays = "PID_NumberOfRays"
-PropertyID.PID_LEDSpectrum = "PID_LEDSpectrum"
-PropertyID.PID_ParticleNumberDensity = "PID_ParticleNumberDensity"
-PropertyID.PID_ParticleRefractiveIndex = "PID_ParticleRefractiveIndex"
-PropertyID.PID_EmissionSpectrum = "PID_EmissionSpectrum"
-PropertyID.PID_ExcitationSpectrum = "PID_ExcitationSpectrum"
-PropertyID.PID_AsorptionSpectrum = "PID_AsorptionSpectrum"
-
-PropertyID.PID_ScatteringCrossSections = "PID_ScatteringCrossSections"
-PropertyID.PID_InverseCumulativeDist = "PID_InverseCumulativeDist"
-
-FieldID.FID_HeatSourceVol = "FID_HeatSourceVol"
-FieldID.FID_HeatSourceSurf = "FID_HeatSourceSurf"
-##########################################################
+if not os.path.isdir('runFolder'):
+    os.mkdir('runFolder')
+os.chdir('runFolder')
 
 
 if __name__ == '__main__':
 
     # create a new logger, MMPRaytracer class creates a logger
     # that logs at the INFO-level. Use this place to set for debug level.
-    logging.config.fileConfig('loggingNew.conf')
+    logging.config.fileConfig('../../loggingNew.conf')
 
     logger = logging.getLogger('mmpraytracer')
     print("#######################################")
@@ -77,7 +64,7 @@ if __name__ == '__main__':
 
     # Connect fields
     fTemp = comsolApp.getField(FieldID.FID_Temperature, 0)
-    fHeat = comsolApp.getField(FieldID.FID_HeatSourceVol, 0)
+    fHeat = comsolApp.getField(FieldID.FID_Thermal_absorption_volume, 0)
 
     tracerApp.setField(fTemp)
     tracerApp.setField(fHeat)
@@ -109,7 +96,7 @@ if __name__ == '__main__':
         tracerApp.solveStep(t, runInBackground=False)
         comsolApp.solveStep(t)
 
-    fHeat = tracerApp.getField(FieldID.FID_HeatSourceVol, 1.5)
+    fHeat = tracerApp.getField(FieldID.FID_Thermal_absorption_volume, 1.5)
     pDens = tracerApp.getProperty(propID=PropertyID.PID_ParticleNumberDensity,
                                   objectID=objID.OBJ_CONE, time=1.5)
 

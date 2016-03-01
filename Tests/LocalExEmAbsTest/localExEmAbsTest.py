@@ -9,22 +9,6 @@ if __name__ == '__main__':
 
     logger = logging.getLogger()
 
-    ### FID and PID definitions untill implemented at mupif###
-    PropertyID.PID_RefractiveIndex = 22
-    PropertyID.PID_NumberOfRays = 23
-    PropertyID.PID_LEDSpectrum = 24
-    PropertyID.PID_ParticleNumberDensity = 25
-    PropertyID.PID_ParticleRefractiveIndex = 26
-    PropertyID.PID_EmissionSpectrum = 2121
-    PropertyID.PID_ExcitationSpectrum = 2222
-    PropertyID.PID_AsorptionSpectrum = 2323
-
-    PropertyID.PID_ScatteringCrossSections = 28
-    PropertyID.PID_InverseCumulativeDist = 29
-
-    FieldID.FID_HeatSourceVol = 33
-    ##########################################################
-
     import time as timeTime
     start = timeTime.time()
     logger.info('Timer started')
@@ -32,6 +16,9 @@ if __name__ == '__main__':
     mieApp = MMPMie('localhost')
     tracerApp = MMPRaytracer('localhost')
     comsolApp = MMPComsolDummy('localhost')
+
+    # Point data conversion to false. Speeds up testing
+    tracerApp._convertPointData = False
 
     logger.info('Applications loaded:')
     print(mieApp)
@@ -55,7 +42,7 @@ if __name__ == '__main__':
     # Connect fields
     logger.info('Connecting Fields...')
     fTemp = comsolApp.getField(FieldID.FID_Temperature, 0)
-    fHeat = comsolApp.getField(FieldID.FID_HeatSourceVol, 0)
+    fHeat = comsolApp.getField(FieldID.FID_Thermal_absorption_volume, 0)
 
     tracerApp.setField(fTemp)
     tracerApp.setField(fHeat)

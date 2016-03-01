@@ -31,29 +31,6 @@ if not os.path.isdir('runFolder'):
     os.mkdir('runFolder')
 os.chdir('runFolder')
 
-### FID and PID definitions untill implemented at mupif###
-PropertyID.PID_RefractiveIndex = "PID_RefractiveIndex"
-PropertyID.PID_NumberOfRays = "PID_NumberOfRays"
-PropertyID.PID_LEDSpectrum = "PID_LEDSpectrum"
-PropertyID.PID_ChipSpectrum = "PID_ChipSpectrum"
-PropertyID.PID_LEDColor_x = "PID_LEDColor_x"
-PropertyID.PID_LEDColor_y = "PID_LEDColor_y"
-PropertyID.PID_LEDCCT = "PID_LEDCCT"
-PropertyID.PID_LEDRadiantPower = "PID_LEDRadiantPower"
-PropertyID.PID_ParticleNumberDensity = "PID_ParticleNumberDensity"
-PropertyID.PID_ParticleRefractiveIndex = "PID_ParticleRefractiveIndex"
-PropertyID.PID_EmissionSpectrum = "PID_EmissionSpectrum"
-PropertyID.PID_ExcitationSpectrum = "PID_ExcitationSpectrum"
-PropertyID.PID_AsorptionSpectrum = "PID_AsorptionSpectrum"
-
-PropertyID.PID_ScatteringCrossSections = "PID_ScatteringCrossSections"
-PropertyID.PID_InverseCumulativeDist = "PID_InverseCumulativeDist"
-
-FieldID.FID_HeatSourceVol = "FID_HeatSourceVol"
-FieldID.FID_HeatSourceSurf = "FID_HeatSourceSurf"
-##########################################################
-
-
 if __name__ == '__main__':
 
     # create a new logger, MMPRaytracer class creates a logger
@@ -92,7 +69,7 @@ if __name__ == '__main__':
 
     # Connect fields
     fTemp = comsolApp.getField(FieldID.FID_Temperature, 0)
-    fHeat = comsolApp.getField(FieldID.FID_HeatSourceVol, 0)
+    fHeat = comsolApp.getField(FieldID.FID_Thermal_absorption_volume, 0)
 
     tracerApp.setField(fTemp)
     tracerApp.setField(fHeat)

@@ -14,7 +14,8 @@
 # limitations under the License.
 #
 
-from mupif import FunctionID, PropertyID, FieldID, ValueType, Property, APIError
+from mupif import FunctionID, PropertyID, FieldID, ValueType
+from mupif import Property, APIError
 import objID
 import numpy as np
 
