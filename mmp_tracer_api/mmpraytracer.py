@@ -189,9 +189,9 @@ class MMPRaytracer(Application):
             prop = self.properties[key]
 
         # Check pyro registering if applicaple
-        # if hasattr(self, '_pyroDaemon') and not hasattr(prop, '_PyroURI'):
-        #    uri = self._pyroDaemon.register(prop)
-        #    prop._PyroURI = uri
+        if hasattr(self, '_pyroDaemon') and not hasattr(prop, '_PyroURI'):
+            uri = self._pyroDaemon.register(prop)
+            prop._PyroURI = uri
 
         return(prop)
 
@@ -218,7 +218,7 @@ class MMPRaytracer(Application):
         :return: Returns the representation of mesh
         :rtype: Mesh
         """
-        return(self.fields.xs(tstep, level='time')[0])
+        return(self.fields.xs(tstep, level='time')[0].getMesh())
 
     def solveStep(self, tstep, stageID=0, runInBackground=False):
         """
@@ -544,6 +544,8 @@ class MMPRaytracer(Application):
 
         # Get field
         key = (FieldID.FID_Thermal_absorption_volume, self._curTStep)
+        print(key)
+        print(self.fields)
         f = self.fields[key]
 
         # Convert point data to field mesh
