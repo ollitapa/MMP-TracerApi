@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-from mupif import BBox, Field, FieldID, ValueType
+from mupif import BBox, Field, FieldID, ValueType, CellGeometryType, APIError
 import subprocess
 import os
 import numpy as np
@@ -85,6 +85,49 @@ def giveElementsContainingPoint(mesh, point):
         if icell.containsPoint(point):
             ans.append(icell)
     return ans
+
+
+def computeCellVolumeOrArea(cell):
+
+    vol = 0
+
+    if cell.getGeometryType() == CellGeometryType.CGT_TETRA:
+
+        # Get vertices and create points as np.array
+        verts = cell.getVertices()
+
+        p0 = np.array(verts[0].getCoordinates())
+        p1 = np.array(verts[1].getCoordinates())
+        p2 = np.array(verts[2].getCoordinates())
+        p3 = np.array(verts[3].getCoordinates())
+
+        # Creat three polyhedron edge vectors a, b, and c
+        a = p1 - p0
+        b = p2 - p0
+        c = p3 - p0
+
+        # Calculate volume
+        vol = 1 / 6.0 * np.abs(np.dot(a, np.cross(b, c)))
+
+    elif cell.getGeometryType() == CellGeometryType.CGT_TRIANGLE_1:
+        # Get vertices and create points as np.array
+        verts = cell.getVertices()
+
+        p0 = np.array(verts[0].getCoordinates())
+        p1 = np.array(verts[1].getCoordinates())
+        p2 = np.array(verts[2].getCoordinates())
+
+        # Creat edge vectors a, b
+        a = p1 - p0
+        b = p2 - p0
+
+        # Calculate volume
+        vol = np.linalg.norm(np.cross(a, b)) / 2.0
+
+    else:
+        raise APIError.APIError("Volume/Area calculation for %s\
+                                 not supported" % str(cell))
+    return(vol)
 
 
 def convertPointDataToMesh(points, values, field, inplace=True):
