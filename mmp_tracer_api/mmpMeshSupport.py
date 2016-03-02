@@ -152,7 +152,8 @@ def convertPointDataToMesh(points, values, field, inplace=True):
     Returns
     -------
     Field.Field
-        Field where the points have been inserted.
+        Field where the points have been inserted. Point values are divided
+        by Cell volume/area
 
     '''
     logger.debug("Converting point data (n=%d) to mesh (cells=%d)..." % (
@@ -183,12 +184,14 @@ def convertPointDataToMesh(points, values, field, inplace=True):
         # now the elems list contains all elements containing the given point
         # print("%s %s %s" % ("Elements containing point", p, "are:"))
         j = 0
-        for i in elems:
-            j = i.number
+        for cell in elems:
+            j = cell.number
+            divider = computeCellVolumeOrArea(cell)
 
         # Sum field values
         if len(elems) > 0:
-            f.setValue(j, v + f.giveValue(j))
+            vDivVol = v / divider
+            f.setValue(j, vDivVol + f.giveValue(j))
         else:
             pNfound += 1
 
@@ -220,7 +223,8 @@ def convertPointDataToMeshFAST(pointdataVTKfile, field, inplace=True):
     Returns
     -------
     Field.Field
-        Field where the points have been inserted.
+        Field where the points have been inserted. Point values are divided
+        by Cell volume/area
 
     '''
     logger.info("Converting point data to mesh (cells=%d)..." % (
