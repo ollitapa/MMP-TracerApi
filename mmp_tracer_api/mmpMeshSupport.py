@@ -88,6 +88,21 @@ def giveElementsContainingPoint(mesh, point):
 
 
 def computeCellVolumeOrArea(cell):
+    '''
+    Computes the volume or area of given Cell. Volume is returned
+    for 3d solids and area for surface cells e.g. Triangle.
+
+    Parameters
+    ----------
+    cell : mupif.Cell
+           Cell to calculate the area or volume
+
+    Returns
+    -------
+    area or volume : double
+            Area or volume of the cell.
+
+    '''
 
     vol = 0
 
