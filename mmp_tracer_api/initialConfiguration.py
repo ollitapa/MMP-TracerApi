@@ -68,9 +68,9 @@ def checkRequiredParameters(props, pID=PropertyID):
     if pID.PID_ParticleNumberDensity not in props.index:
         print("ParticleNumberDensity not found!")
         #found = False
-    if pID.PID_ParticleRefractiveIndex not in props.index:
-        print("ParticleRefractiveIndex not found!")
-        #found = False
+    #if pID.PID_ParticleRefractiveIndex not in props.index:
+    #    print("ParticleRefractiveIndex not found!")
+    #    #found = False
     if pID.PID_InverseCumulativeDist not in props.index:
         print("InverseCumulativeDist not found!")
         #found = False
@@ -189,6 +189,11 @@ def initialProps(props, jsondata, pID=PropertyID):
                            objectID=objID.OBJ_LED)
 
     key = (pID.PID_LEDRadiantPower, objID.OBJ_LED, 0)
+    props.set_value(key, nr)
+
+    # Number of fluorescent particles:
+    nr = Property.Property(value=jsondata['materials'][3]['numberOfFluorescentParticles'], valueType=ValueType.Scalar, propID=pID.PID_Demo_Value, time=0.0, units=None, objectID=objID.OBJ_CONE)
+    key = (pID.PID_Demo_Value, objID.OBJ_CONE, 0)
     props.set_value(key, nr)
 
     # print(type(props[key].value))

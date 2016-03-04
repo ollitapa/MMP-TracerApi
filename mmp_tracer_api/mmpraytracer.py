@@ -377,7 +377,7 @@ class MMPRaytracer(Application):
             newKey = (pID[0], pID[1], self._curTStep)
             p = self.properties[key]
             newProp = Property.Property(value=p.getValue(),
-                                        propID=p.getPropertID(),
+                                        propID=p.getPropertyID(),
                                         valueType=p.valueType,
                                         time=self._curTStep,
                                         units=p.getUnits(),

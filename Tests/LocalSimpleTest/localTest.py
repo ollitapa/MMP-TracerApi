@@ -13,7 +13,7 @@ if __name__ == '__main__':
     # Connect fields
     print('Connecting Fields...')
     fTemp = comsolApp.getField(FieldID.FID_Temperature, 0)
-    fHeat = comsolApp.getField(FieldID.FID_HeatSourceVol, 0)
+    fHeat = comsolApp.getField(FieldID.FID_Thermal_absorption_volume, 0)
 
     tracerApp.setField(fTemp)
     tracerApp.setField(fHeat)

@@ -114,25 +114,25 @@ if __name__ == '__main__':
                            valueType=ValueType.Scalar,
                            time=0.0,
                            units=None,
-                           objectID=objID.OBJ_CONE)
+                           objectID=objID.OBJ_PARTICLE_TYPE_1)
     tracerApp.setProperty(em)
 
     # Excitation spectrum
     ex = Property.Property(value=ex_em_import.getEx(),
-                           propID=PropertyID.PID_EmissionSpectrum,
+                           propID=PropertyID.PID_ExcitationSpectrum,
                            valueType=ValueType.Scalar,
                            time=0.0,
                            units=None,
-                           objectID=objID.OBJ_CONE)
+                           objectID=objID.OBJ_PARTICLE_TYPE_1)
     tracerApp.setProperty(ex)
 
     # Absorption spectrum
     aabs = Property.Property(value=ex_em_import.getAbs(),
-                             propID=PropertyID.PID_EmissionSpectrum,
+                             propID=PropertyID.PID_AsorptionSpectrum,
                              valueType=ValueType.Scalar,
                              time=0.0,
                              units=None,
-                             objectID=objID.OBJ_CONE)
+                             objectID=objID.OBJ_PARTICLE_TYPE_1)
     tracerApp.setProperty(aabs)
 
     logger.info('Properties set!')
@@ -140,8 +140,9 @@ if __name__ == '__main__':
     # Solve Mie
     mieApp.solveStep(0)
 
+    particles_in_um3 = 0.0
     for w_frac in weight_frac:
-        particles_in_um3 =\
+        particles_in_um3 +=\
             st.particlesInVolumeLogNormWeightTotal(w_frac, dens_p,
                                                    dens_host, mu, sigma,
                                                    particle_diameters=d)
