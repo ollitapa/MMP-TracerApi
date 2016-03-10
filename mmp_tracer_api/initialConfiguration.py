@@ -196,5 +196,14 @@ def initialProps(props, jsondata, pID=PropertyID):
     key = (pID.PID_Demo_Value, objID.OBJ_CONE, 0)
     props.set_value(key, nr)
 
+    # Phosphor efficiency for PARTICLE_TYPE_1:
+    p_eff = Property.Property(value=jsondata['materials'][3]['phosphorEfficiencies'][0],
+                              valueType=ValueType.Scalar,
+                              propID=pID.PID_PhosphorEfficiency,
+                              time=0.0, units=None,
+                              objectID=objID.OBJ_PARTICLE_TYPE_1)
+    key = (pID.PID_PhosphorEfficiency, objID.OBJ_PARTICLE_TYPE_1, 0)
+    props.set_value(key, p_eff)
+
     # print(type(props[key].value))
     # print(props[key].value)

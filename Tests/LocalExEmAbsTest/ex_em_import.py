@@ -22,6 +22,7 @@ def getEm():
         A = np.loadtxt('ExEm/EM_GREEN.dat')
     except:
         A = np.loadtxt('ExEmAbs-dummy/EM_GREEN.txt')
+        
 
     a['wavelengths'] = A[:, 0]
     a['intensities'] = A[:, 1]

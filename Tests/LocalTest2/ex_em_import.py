@@ -24,7 +24,7 @@ def getEm():
         A = np.loadtxt('../ExEmAbs-dummy/EM_GREEN.txt')
 
     a['wavelengths'] = A[:, 0]
-    a['intensities'] = A[:, 0]
+    a['intensities'] = A[:, 1]
 
     return a
 

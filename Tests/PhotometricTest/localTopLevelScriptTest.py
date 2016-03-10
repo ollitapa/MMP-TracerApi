@@ -142,7 +142,7 @@ if __name__ == '__main__':
 
     particles_in_um3 = 0.0
     for w_frac in weight_frac:
-        particles_in_um3 +=\
+        particles_in_um3 =\
             st.particlesInVolumeLogNormWeightTotal(w_frac, dens_p,
                                                    dens_host, mu, sigma,
                                                    particle_diameters=d)

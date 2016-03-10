@@ -45,7 +45,7 @@ pri2 = Property.Property(1.84,
                         objectID=objID.OBJ_PARTICLE_TYPE_2)
 mieApp.setProperty(pri2)
 
-"""
+
 pri3 = Property.Property(1.85,
                         PropertyID.PID_RefractiveIndex,
                         valueType=ValueType.Scalar,
@@ -53,7 +53,7 @@ pri3 = Property.Property(1.85,
                         units=None,
                          objectID=objID.OBJ_PARTICLE_TYPE_3)
 mieApp.setProperty(pri3)
-"""
+
 hmri = Property.Property(1.55, PropertyID.PID_RefractiveIndex,
                              valueType=ValueType.Scalar,
                              time=0.0,
@@ -86,7 +86,7 @@ pPhase2 = Property.Property(0,
                             objectID=objID.OBJ_PARTICLE_TYPE_2)
 
 
-"""
+
 pScat3 = Property.Property(0,
                               PropertyID.PID_ScatteringCrossSections,
                               valueType=ValueType.Vector,
@@ -100,14 +100,14 @@ pPhase3 = Property.Property(0,
                             time=0.0,
                             units=None,
                             objectID=objID.OBJ_PARTICLE_TYPE_3)
-"""
+
 
 mieApp.setProperty(pScat2)
 mieApp.setProperty(pPhase2)
 
 
-#mieApp.setProperty(pScat3)
-#mieApp.setProperty(pPhase3)
+mieApp.setProperty(pScat3)
+mieApp.setProperty(pPhase3)
 
 
 
@@ -118,22 +118,22 @@ pP2 = mieApp.getProperty(PropertyID.PID_InverseCumulativeDist, 0.0,
                                 objectID=objID.OBJ_PARTICLE_TYPE_2)
 
 
-"""
+
 pS3 = mieApp.getProperty(PropertyID.PID_ScatteringCrossSections, 0.0,
                                objectID=objID.OBJ_PARTICLE_TYPE_3)
 
 pP3 = mieApp.getProperty(PropertyID.PID_InverseCumulativeDist, 0.0,
                                 objectID=objID.OBJ_PARTICLE_TYPE_3)
 
-"""
+
 
 
 tracerApp.setProperty(pScat)
 tracerApp.setProperty(pPhase)
 tracerApp.setProperty(pS2)
 tracerApp.setProperty(pP2)
-#tracerApp.setProperty(pS3)
-#tracerApp.setProperty(pP3)
+tracerApp.setProperty(pS3)
+tracerApp.setProperty(pP3)
 
 # Connect fields
 fTemp = comsolApp.getField(FieldID.FID_Temperature, 0)
@@ -194,6 +194,10 @@ minw2 = Property.Property(value=w_min2, propID=PropertyID.PID_Wavelen_min, value
 numw2 = Property.Property(value=w_num2, propID=PropertyID.PID_Wavelen_n, valueType=ValueType.Scalar, time=0.0, units=None, objectID=objID.OBJ_PARTICLE_TYPE_2)
 """
 
+mup3 = Property.Property(value=Mu2, propID=PropertyID.PID_ParticleMu, valueType=ValueType.Scalar, time=0.0, units=None, objectID=objID.OBJ_PARTICLE_TYPE_3)
+
+sigmap3 = Property.Property(value=Sigma2, propID=PropertyID.PID_ParticleSigma, valueType=ValueType.Scalar, time=0.0, units=None, objectID=objID.OBJ_PARTICLE_TYPE_3)
+
 mieApp.setProperty(mup)
 mieApp.setProperty(sigmap)
 #mieApp.setProperty(maxp)
@@ -212,6 +216,9 @@ mieApp.setProperty(sigmap2)
 #mieApp.setProperty(minw2)
 #mieApp.setProperty(numw2)
 
+mieApp.setProperty(mup3)
+mieApp.setProperty(sigmap3)
+
 
 
 #run the simulation:
@@ -227,7 +234,7 @@ tracerApp.setProperty(pRays)
     
 
 #TODO: replace PID with a new PID!!!!!    
-n_particles = Property.Property(value=2, propID=PropertyID.PID_Demo_Value,#PropertyID.PID_NumberOfFluorescentParticles
+n_particles = Property.Property(value=3, propID=PropertyID.PID_Demo_Value,#PropertyID.PID_NumberOfFluorescentParticles
                                     valueType=ValueType.Scalar,
                                     time=0.0,
                                     units=None,
@@ -241,6 +248,8 @@ tracerApp.setProperty(p_eff1)
 p_eff2 = Property.Property(value=0.7, propID=PropertyID.PID_PhosphorEfficiency, valueType=ValueType.Scalar, time=0.0, units=None, objectID=objID.OBJ_PARTICLE_TYPE_2)
 tracerApp.setProperty(p_eff2)
 
+p_eff3 = Property.Property(value=0.75, propID=PropertyID.PID_PhosphorEfficiency, valueType=ValueType.Scalar, time=0.0, units=None, objectID=objID.OBJ_PARTICLE_TYPE_3)
+tracerApp.setProperty(p_eff3)
 
 
 # em, ex, abs spectrum for each particle_type 1, 2, ...n
@@ -300,11 +309,38 @@ aabs2 = Property.Property(value=ex_em_import.getAbsRed(),
                              objectID=objID.OBJ_PARTICLE_TYPE_2)
 tracerApp.setProperty(aabs2)
 
+
+# Emission spectrum 3
+em3 = Property.Property(value=ex_em_import.getEmRed(),
+                           propID=PropertyID.PID_EmissionSpectrum,
+                           valueType=ValueType.Scalar,
+                           time=0.0,
+                           units=None,
+                           objectID=objID.OBJ_PARTICLE_TYPE_3)
+tracerApp.setProperty(em3)
+
+# Excitation spectrum
+ex3 = Property.Property(value=ex_em_import.getExRed(),
+                           propID=PropertyID.PID_ExcitationSpectrum,
+                           valueType=ValueType.Scalar,
+                           time=0.0,
+                           units=None,
+                           objectID=objID.OBJ_PARTICLE_TYPE_3)
+tracerApp.setProperty(ex3)
+
+# Absorption spectrum
+aabs3 = Property.Property(value=ex_em_import.getAbsRed(),
+                             propID=PropertyID.PID_AsorptionSpectrum,
+                             valueType=ValueType.Scalar,
+                             time=0.0,
+                             units=None,
+                             objectID=objID.OBJ_PARTICLE_TYPE_3)
+tracerApp.setProperty(aabs3)
+
 #logger.info('Properties set!')
 
 # Solve Mie
 mieApp.solveStep(0)
-
 
 # propertyiksi, mielle   
 # Particle density
@@ -312,20 +348,17 @@ dens_p = 5.0  # g/cm3
 # Silicone density
 dens_host = 1.1  # g/cm3
 
-
-# Particles diameters in micrometers 
 d = np.linspace(p_min, p_max, p_num)
 #pdf = lognorm(sigma, scale=np.exp(mu))
 
 # Weight fractions
-#weight_frac = np.array([20, 25, 28]) / 100.0
-weight_frac = np.array([20, 25]) / 100.0
+weight_frac = np.array([20, 25, 28]) / 100.0
+#weight_frac = np.array([20, 25]) / 100.0
 #weight_frac = np.array([20]) / 100.0
 
-
 particles_in_um3 = []
-mu = [Mu, Mu2]
-sigma = [Sigma, Sigma2]
+mu = [Mu, Mu2, Mu2]
+sigma = [Sigma, Sigma2, Sigma2]
 j=0
 for w_frac in weight_frac:
     particles_in_um3.extend([st.particlesInVolumeLogNormWeightTotal(w_frac, dens_p, dens_host, mu[j], sigma[j], particle_diameters=d)])
@@ -333,8 +366,7 @@ for w_frac in weight_frac:
 
 
 # Particle density
-#NOTE: USE ValueType.Vector if more than one particle type !!!
-#Otherwise, use ValueType.Scalar !
+#NOTE: Use ValueType.Vector if more than one particle type !!!
 vDens = particles_in_um3
 pDens = Property.Property(value=vDens,
                           propID=PropertyID.PID_ParticleNumberDensity,

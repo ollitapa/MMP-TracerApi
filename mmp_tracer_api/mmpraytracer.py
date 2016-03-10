@@ -424,7 +424,12 @@ class MMPRaytracer(Application):
                  key[2] == tstep):
                 print("PID_ParticleNumberDensity, ", prop.getValue())
                 parent = self._jsondata['materials']
-                parent[3]["particleDensities"] = [prop.getValue()]
+                if prop.getValueType() is ValueType.Scalar:
+                    parent[3]["particleDensities"] = [prop.getValue()]
+                else:
+                    parent[3]["particleDensities"] = prop.getValue()
+                   
+            
             elif(key[0] == PropertyID.PID_ScatteringCrossSections and
                  key[2] == tstep):
                 pass
@@ -434,12 +439,34 @@ class MMPRaytracer(Application):
         # Datafiles:
         parent = self._jsondata['materials']
 
-        # TODO: need PID for this property!!!
+        # TODO: new PID for this property!! PID_NumberOfFluorescentParticles
         n_particle_key = (PropertyID.PID_Demo_Value, objID.OBJ_CONE, tstep)
         n_particles = self.properties[n_particle_key]
         parent[3]['numberOfFluorescentParticles'] = n_particles.getValue()
         print("n_particles=", n_particles.getValue(),
               parent[3]['numberOfFluorescentParticles'])
+
+        #Phosphor efficiences:
+        if PropertyID.PID_PhosphorEfficiency in\
+                self.properties.index.get_level_values('propertyID'):
+            effs = self.properties.xs((PropertyID.PID_PhosphorEfficiency, tstep), level=('propertyID', 'tstep'))
+
+            efflist = []
+            for i, row in effs.iteritems():
+                p = row.getValue()
+                efflist.extend([p])
+
+            parent[3]["phosphorEfficiencies"] = efflist
+            if len(efflist) != n_particles.getValue():
+                raise APIError.APIError("Number of phosphor efficiencies \
+                                        (%d) does not match with number of \
+                                        fluorescent particles (%d)" %
+                                        (len(efflist),
+                                         n_particles.getValue())
+                                        )
+        else:
+            raise APIError.APIError(
+                "Did not find phosphor efficiencies in Properties!")
 
         # Properties containing emission spectrums
         if PropertyID.PID_EmissionSpectrum in\
@@ -644,10 +671,10 @@ class MMPRaytracer(Application):
         # Wavelengths used
         # key = (PropertyID.PID_LEDSpectrum, objID.OBJ_CHIP_ACTIVE_AREA, 0)
         # wave = self.properties[key].getValue()['wavelengths']
-        # TODO: These should be same with MieAPI!! pidetaan vakioina!
+        # These should be same with MieAPI!! Constants, hardcoded in both...
         w_max = 1100.0
         w_min = 100.0
-        w_num = 10
+        w_num = 1001#10
 
         wave = np.linspace(w_min, w_max, w_num)
 

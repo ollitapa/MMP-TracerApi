@@ -5,38 +5,6 @@ from comsol_api import MMPComsolDummy
 from mupif import PyroUtil, Property, PropertyID, FieldID, ValueType
 import logging
 logger = logging.getLogger()
-'''
-### FID and PID definitions untill implemented at mupif###
-PropertyID.PID_RefractiveIndex = 22
-PropertyID.PID_NumberOfRays = 23
-PropertyID.PID_LEDSpectrum = 24
-PropertyID.PID_ParticleNumberDensity = 25
-PropertyID.PID_ParticleRefractiveIndex = 26
-PropertyID.PID_EmissionSpectrum = 2121
-PropertyID.PID_ExcitationSpectrum = 2222
-PropertyID.PID_AsorptionSpectrum = 2323
-
-PropertyID.PID_ScatteringCrossSections = 28
-PropertyID.PID_InverseCumulativeDist = 29
-
-FieldID.FID_HeatSourceVol = 33
-##########################################################
-'''
-PropertyID.PID_RefractiveIndex = "PID_RefractiveIndex"
-PropertyID.PID_NumberOfRays = "PID_NumberOfRays"
-PropertyID.PID_LEDSpectrum = "PID_LEDSpectrum"
-PropertyID.PID_ParticleNumberDensity = "PID_ParticleNumberDensity"
-PropertyID.PID_ParticleRefractiveIndex = "PID_ParticleRefractiveIndex"
-PropertyID.PID_EmissionSpectrum = "PID_EmissionSpectrum"
-PropertyID.PID_ExcitationSpectrum = "PID_ExcitationSpectrum"
-PropertyID.PID_AsorptionSpectrum = "PID_AsorptionSpectrum"
-
-PropertyID.PID_ScatteringCrossSections = "PID_ScatteringCrossSections"
-PropertyID.PID_InverseCumulativeDist = "PID_InverseCumulativeDist"
-
-FieldID.FID_HeatSourceVol = "FID_HeatSourceVol"
-FieldID.FID_HeatSourceSurf = "FID_HeatSourceSurf"
-
 
 import time as timeTime
 start = timeTime.time()
@@ -90,7 +58,7 @@ logger.info('Props connected')
 # Connect fields
 logger.info('Connecting Fields...in direct app-to-app manner')
 fTempURI = comsolApp.getFieldURI(FieldID.FID_Temperature, 0)
-fHeatURI = comsolApp.getFieldURI(FieldID.FID_HeatSourceVol, 0)
+fHeatURI = comsolApp.getFieldURI(FieldID.FID_Thermal_absorption_volume, 0)
 print(fTempURI, fHeatURI)
 fTemp = cConf.Pyro4.Proxy(fTempURI)
 fHeat = cConf.Pyro4.Proxy(fHeatURI)
@@ -105,6 +73,51 @@ tracerApp.setField(fHeat)
 logger.info('Fields connected')
 
 # Connect properties
+
+# Emission spectrum
+import numpy as np
+
+a = {}
+
+A = np.loadtxt('../../../mmp_tracer_api/data/EM_GREEN.dat')
+a['wavelengths'] = A[:, 0]
+a['intensities'] = A[:, 1]
+em = Property.Property(value=a,
+                           propID=PropertyID.PID_EmissionSpectrum,
+                           valueType=ValueType.Scalar,
+                           time=0.0,
+                           units=None,
+                           objectID=objID.OBJ_PARTICLE_TYPE_1)
+tracerApp.setProperty(em)
+
+# Excitation spectrum
+b = {}
+B = np.loadtxt('../../../mmp_tracer_api/data/EX_GREEN.dat')
+b['wavelengths'] = B[:, 0]
+b['intensities'] = B[:, 1]
+ex = Property.Property(value=b,
+                           propID=PropertyID.PID_ExcitationSpectrum,
+                           valueType=ValueType.Scalar,
+                           time=0.0,
+                           units=None,
+                           objectID=objID.OBJ_PARTICLE_TYPE_1)
+tracerApp.setProperty(ex)
+
+# Absorption spectrum
+c = {}
+C = np.loadtxt('../../../mmp_tracer_api/data/Abs_GREEN.dat')
+c['wavelengths'] = C[:, 0]
+c['intensities'] = C[:, 1]
+aabs = Property.Property(value=c,
+                             propID=PropertyID.PID_AsorptionSpectrum,
+                             valueType=ValueType.Scalar,
+                             time=0.0,
+                             units=None,
+                             objectID=objID.OBJ_PARTICLE_TYPE_1)
+tracerApp.setProperty(aabs)
+
+
+
 # Particle density
 logger.info('Setting Properties...')
 vDens = 0.00000003400
