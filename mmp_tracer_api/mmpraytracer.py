@@ -439,8 +439,8 @@ class MMPRaytracer(Application):
         # Datafiles:
         parent = self._jsondata['materials']
 
-        # TODO: new PID for this property!! PID_NumberOfFluorescentParticles
-        n_particle_key = (PropertyID.PID_Demo_Value, objID.OBJ_CONE, tstep)
+        
+        n_particle_key = (PropertyID.PID_NumberOfFluorescentParticles, objID.OBJ_CONE, tstep)
         n_particles = self.properties[n_particle_key]
         parent[3]['numberOfFluorescentParticles'] = n_particles.getValue()
         print("n_particles=", n_particles.getValue(),

@@ -192,8 +192,8 @@ def initialProps(props, jsondata, pID=PropertyID):
     props.set_value(key, nr)
 
     # Number of fluorescent particles:
-    nr = Property.Property(value=jsondata['materials'][3]['numberOfFluorescentParticles'], valueType=ValueType.Scalar, propID=pID.PID_Demo_Value, time=0.0, units=None, objectID=objID.OBJ_CONE)
-    key = (pID.PID_Demo_Value, objID.OBJ_CONE, 0)
+    nr = Property.Property(value=jsondata['materials'][3]['numberOfFluorescentParticles'], valueType=ValueType.Scalar, propID=pID.PID_NumberOfFluorescentParticles, time=0.0, units=None, objectID=objID.OBJ_CONE)
+    key = (pID.PID_NumberOfFluorescentParticles, objID.OBJ_CONE, 0)
     props.set_value(key, nr)
 
     # Phosphor efficiency for PARTICLE_TYPE_1:

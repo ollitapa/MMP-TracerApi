@@ -11,28 +11,6 @@ from scipy.stats import lognorm
 from pyraytracer import scatteringTools as st
 import os
 
-### FID and PID definitions untill implemented at mupif###
-PropertyID.PID_RefractiveIndex = "PID_RefractiveIndex"
-PropertyID.PID_NumberOfRays = "PID_NumberOfRays"
-PropertyID.PID_LEDSpectrum = "PID_LEDSpectrum"
-PropertyID.PID_ChipSpectrum = "PID_ChipSpectrum"
-PropertyID.PID_LEDColor_x = "PID_LEDColor_x"
-PropertyID.PID_LEDColor_y = "PID_LEDColor_y"
-PropertyID.PID_LEDCCT = "PID_LEDCCT"
-PropertyID.PID_LEDRadiantPower = "PID_LEDRadiantPower"
-PropertyID.PID_ParticleNumberDensity = "PID_ParticleNumberDensity"
-PropertyID.PID_ParticleRefractiveIndex = "PID_ParticleRefractiveIndex"
-PropertyID.PID_EmissionSpectrum = "PID_EmissionSpectrum"
-PropertyID.PID_ExcitationSpectrum = "PID_ExcitationSpectrum"
-PropertyID.PID_AsorptionSpectrum = "PID_AsorptionSpectrum"
-
-PropertyID.PID_ScatteringCrossSections = "PID_ScatteringCrossSections"
-PropertyID.PID_InverseCumulativeDist = "PID_InverseCumulativeDist"
-
-FieldID.FID_HeatSourceVol = "FID_HeatSourceVol"
-FieldID.FID_HeatSourceSurf = "FID_HeatSourceSurf"
-##########################################################
-
 
 
 print("simple brute force optimization")
@@ -41,7 +19,7 @@ print("simple brute force optimization")
 params = ()
 
 #value that we target in the simulation:
-x = (3500,) #CCT: 2700...5000
+x = (2000,) #CCT: 2700...5000
 
 
 #function that runs the simulation and returns the simulated result value xsim:
@@ -69,7 +47,7 @@ def xsim(z, *params):
 
     # Connect fields
     fTemp = comsolApp.getField(FieldID.FID_Temperature, 0)
-    fHeat = comsolApp.getField(FieldID.FID_HeatSourceVol, 0)
+    fHeat = comsolApp.getField(FieldID.FID_Thermal_absorption_volume, 0)
 
     tracerApp.setField(fTemp)
     tracerApp.setField(fHeat)
@@ -123,25 +101,25 @@ def xsim(z, *params):
                            valueType=ValueType.Scalar,
                            time=0.0,
                            units=None,
-                           objectID=objID.OBJ_CONE)
+                           objectID=objID.OBJ_PARTICLE_TYPE_1)
     tracerApp.setProperty(em)
 
     # Excitation spectrum
     ex = Property.Property(value=ex_em_import.getEx(),
-                           propID=PropertyID.PID_EmissionSpectrum,
+                           propID=PropertyID.PID_ExcitationSpectrum,
                            valueType=ValueType.Scalar,
                            time=0.0,
                            units=None,
-                           objectID=objID.OBJ_CONE)
+                           objectID=objID.OBJ_PARTICLE_TYPE_1)
     tracerApp.setProperty(ex)
 
     # Absorption spectrum
     aabs = Property.Property(value=ex_em_import.getAbs(),
-                             propID=PropertyID.PID_EmissionSpectrum,
+                             propID=PropertyID.PID_AsorptionSpectrum,
                              valueType=ValueType.Scalar,
                              time=0.0,
                              units=None,
-                             objectID=objID.OBJ_CONE)
+                             objectID=objID.OBJ_PARTICLE_TYPE_1)
     tracerApp.setProperty(aabs)
 
     #logger.info('Properties set!')
@@ -174,7 +152,7 @@ def xsim(z, *params):
     
     p = tracerApp.getProperty(PropertyID.PID_LEDCCT, 0,
                               objectID=objID.OBJ_LED)
-    print('CCT: %d' % p.value)
+    print('CCT: %f' % p.value)
     p = tracerApp.getProperty(PropertyID.PID_LEDRadiantPower, 0,
                                   objectID=objID.OBJ_LED)
     print('RadiantPower: %f' % p.value)
@@ -204,9 +182,9 @@ def f(z, *params):
 
 #ranges for each changing parameter:
 #range for z=weight_fraction, 0...100
-start = 20
-stop = 41
-step = 10
+start = 10
+stop = 20
+step = 1
 xs = []
 ys = []
 

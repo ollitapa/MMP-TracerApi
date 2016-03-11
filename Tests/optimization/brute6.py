@@ -112,10 +112,9 @@ def xsim(z, *params):
     tracerApp.setProperty(pRays)
     
 
-
-    #TODO: replace PID with a new PID!!!!!    
+    
     n_particles = Property.Property(value=1,
-                                    propID=PropertyID.PID_Demo_Value,
+                                    propID=PropertyID.PID_NumberOfFluorescentParticles,
                                     valueType=ValueType.Scalar,
                                     time=0.0,
                                     units=None,
@@ -155,6 +154,8 @@ def xsim(z, *params):
     # Solve Mie
     mieApp.solveStep(0)
 
+    #TODO: Need a new function to calculate particles_in_um3 if more than 1 particle type... see n_particle_test.py
+    particles_in_um3 = 0.0
     for w_frac in weight_frac:
         particles_in_um3 =\
             st.particlesInVolumeLogNormWeightTotal(w_frac, dens_p,
@@ -162,6 +163,7 @@ def xsim(z, *params):
                                                    particle_diameters=d)
 
     # Particle density
+    #NOTE: If more than 1 particle type, use ValueType.Vector !
     vDens = particles_in_um3
     pDens = Property.Property(value=vDens,
                               propID=PropertyID.PID_ParticleNumberDensity,
@@ -210,8 +212,8 @@ def f(z, *params):
 
 #ranges for each changing parameter:
 #range for z=weight_fraction, 0...100
-start = 15
-stop = 26
+start = 20
+stop = 31
 step = 10
 xs = []
 ys = []

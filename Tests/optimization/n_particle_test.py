@@ -225,9 +225,8 @@ pRays = Property.Property(value=100000,
                               objectID=objID.OBJ_CONE)
 tracerApp.setProperty(pRays)
     
-
-#TODO: replace PID with a new PID!!!!!    
-n_particles = Property.Property(value=2, propID=PropertyID.PID_Demo_Value,#PropertyID.PID_NumberOfFluorescentParticles
+    
+n_particles = Property.Property(value=2, propID=PropertyID.PID_NumberOfFluorescentParticles,
                                     valueType=ValueType.Scalar,
                                     time=0.0,
                                     units=None,

@@ -61,7 +61,7 @@ if __name__ == '__main__':
     tracerApp.setProperty(pDens)
 
     n_particles = Property.Property(value=1,
-                                    propID=PropertyID.PID_Demo_Value,
+                                    propID=PropertyID.PID_NumberOfFluorescentParticles,
                                     valueType=ValueType.Scalar,
                                     time=0.0,
                                     units=None,
