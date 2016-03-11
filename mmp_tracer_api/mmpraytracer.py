@@ -207,7 +207,7 @@ class MMPRaytracer(Application):
         # Set the new property to container
         key = (newProp.getPropertyID(),
                newProp.getObjectID(),
-               newProp.time)  # TODO: update to getTime for pyro4
+               newProp.getTime())  
         self.properties.set_value(key, newProp)
 
     def getMesh(self, tstep):
