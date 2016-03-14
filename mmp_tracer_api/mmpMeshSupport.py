@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-from mupif import BBox, Field, FieldID, ValueType
+from mupif import BBox, Field, FieldID, ValueType, CellGeometryType, APIError
 import subprocess
 import os
 import numpy as np
@@ -87,6 +87,64 @@ def giveElementsContainingPoint(mesh, point):
     return ans
 
 
+def computeCellVolumeOrArea(cell):
+    '''
+    Computes the volume or area of given Cell. Volume is returned
+    for 3d solids and area for surface cells e.g. Triangle.
+
+    Parameters
+    ----------
+    cell : mupif.Cell
+           Cell to calculate the area or volume
+
+    Returns
+    -------
+    area or volume : double
+            Area or volume of the cell.
+
+    '''
+
+    vol = 0
+
+    if cell.getGeometryType() == CellGeometryType.CGT_TETRA:
+
+        # Get vertices and create points as np.array
+        verts = cell.getVertices()
+
+        p0 = np.array(verts[0].getCoordinates())
+        p1 = np.array(verts[1].getCoordinates())
+        p2 = np.array(verts[2].getCoordinates())
+        p3 = np.array(verts[3].getCoordinates())
+
+        # Creat three polyhedron edge vectors a, b, and c
+        a = p1 - p0
+        b = p2 - p0
+        c = p3 - p0
+
+        # Calculate volume
+        vol = 1 / 6.0 * np.abs(np.dot(a, np.cross(b, c)))
+
+    elif cell.getGeometryType() == CellGeometryType.CGT_TRIANGLE_1:
+        # Get vertices and create points as np.array
+        verts = cell.getVertices()
+
+        p0 = np.array(verts[0].getCoordinates())
+        p1 = np.array(verts[1].getCoordinates())
+        p2 = np.array(verts[2].getCoordinates())
+
+        # Creat edge vectors a, b
+        a = p1 - p0
+        b = p2 - p0
+
+        # Calculate volume
+        vol = np.linalg.norm(np.cross(a, b)) / 2.0
+
+    else:
+        raise APIError.APIError("Volume/Area calculation for %s\
+                                 not supported" % str(cell))
+    return(vol)
+
+
 def convertPointDataToMesh(points, values, field, inplace=True):
     '''
     Converts point-data to mesh based Cell-data. An element of the mesh
@@ -109,7 +167,8 @@ def convertPointDataToMesh(points, values, field, inplace=True):
     Returns
     -------
     Field.Field
-        Field where the points have been inserted.
+        Field where the points have been inserted. Point values are divided
+        by Cell volume/area
 
     '''
     logger.debug("Converting point data (n=%d) to mesh (cells=%d)..." % (
@@ -140,12 +199,14 @@ def convertPointDataToMesh(points, values, field, inplace=True):
         # now the elems list contains all elements containing the given point
         # print("%s %s %s" % ("Elements containing point", p, "are:"))
         j = 0
-        for i in elems:
-            j = i.number
+        for cell in elems:
+            j = cell.number
+            divider = computeCellVolumeOrArea(cell)
 
         # Sum field values
         if len(elems) > 0:
-            f.setValue(j, v + f.giveValue(j))
+            vDivVol = v / divider
+            f.setValue(j, vDivVol + f.giveValue(j))
         else:
             pNfound += 1
 
@@ -177,7 +238,8 @@ def convertPointDataToMeshFAST(pointdataVTKfile, field, inplace=True):
     Returns
     -------
     Field.Field
-        Field where the points have been inserted.
+        Field where the points have been inserted. Point values are divided
+        by Cell volume/area
 
     '''
     logger.info("Converting point data to mesh (cells=%d)..." % (
