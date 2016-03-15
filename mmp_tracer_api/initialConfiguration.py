@@ -29,7 +29,7 @@ def checkRequiredFields(fields,  fID=FieldID):
     found = True
 
     if fID.FID_Thermal_absorption_volume not in fields.index:
-        print("HeatSourceVol not found!")
+        print("Thermal_absorption_volume not found!")
         #found = False
 
     if not found:
@@ -68,9 +68,9 @@ def checkRequiredParameters(props, pID=PropertyID):
     if pID.PID_ParticleNumberDensity not in props.index:
         print("ParticleNumberDensity not found!")
         #found = False
-    if pID.PID_ParticleRefractiveIndex not in props.index:
-        print("ParticleRefractiveIndex not found!")
-        #found = False
+    #if pID.PID_ParticleRefractiveIndex not in props.index:
+    #    print("ParticleRefractiveIndex not found!")
+    #    #found = False
     if pID.PID_InverseCumulativeDist not in props.index:
         print("InverseCumulativeDist not found!")
         #found = False
@@ -190,6 +190,20 @@ def initialProps(props, jsondata, pID=PropertyID):
 
     key = (pID.PID_LEDRadiantPower, objID.OBJ_LED, 0)
     props.set_value(key, nr)
+
+    # Number of fluorescent particles:
+    nr = Property.Property(value=jsondata['materials'][3]['numberOfFluorescentParticles'], valueType=ValueType.Scalar, propID=pID.PID_NumberOfFluorescentParticles, time=0.0, units=None, objectID=objID.OBJ_CONE)
+    key = (pID.PID_NumberOfFluorescentParticles, objID.OBJ_CONE, 0)
+    props.set_value(key, nr)
+
+    # Phosphor efficiency for PARTICLE_TYPE_1:
+    p_eff = Property.Property(value=jsondata['materials'][3]['phosphorEfficiencies'][0],
+                              valueType=ValueType.Scalar,
+                              propID=pID.PID_PhosphorEfficiency,
+                              time=0.0, units=None,
+                              objectID=objID.OBJ_PARTICLE_TYPE_1)
+    key = (pID.PID_PhosphorEfficiency, objID.OBJ_PARTICLE_TYPE_1, 0)
+    props.set_value(key, p_eff)
 
     # print(type(props[key].value))
     # print(props[key].value)

@@ -36,10 +36,6 @@ sys.excepthook = Pyro4.util.excepthook
 Pyro4.config.SERIALIZERS_ACCEPTED = ['pickle', 'serpent', 'json']
 Pyro4.config.SERIALIZER = 'pickle'
 '''
-### FID and PID definitions untill implemented at mupif###
-FieldID.FID_HeatSourceVol = "FID_HeatSourceVol"
-FieldID.FID_HeatSourceSurf = "FID_HeatSourceSurf"
-##########################################################
 
 
 class MMPSimpleRaytracer(Application):
@@ -235,7 +231,7 @@ class MMPSimpleRaytracer(Application):
         print("Tracing successful!")
         
         # Get field
-        key = (FieldID.FID_HeatSourceVol, self._curTStep)
+        key = (FieldID.FID_Thermal_absorption_volume, self._curTStep)
         f = self.fields[key]
 
         #Generate some random values:

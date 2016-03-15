@@ -60,6 +60,21 @@ if __name__ == '__main__':
                               objectID=objID.OBJ_CONE)
     tracerApp.setProperty(pDens)
 
+    n_particles = Property.Property(value=1,
+                                    propID=PropertyID.PID_NumberOfFluorescentParticles,
+                                    valueType=ValueType.Scalar,
+                                    time=0.0,
+                                    units=None,
+                                    objectID=objID.OBJ_CONE)
+    tracerApp.setProperty(n_particles)
+
+    hmri = Property.Property(1.55, PropertyID.PID_RefractiveIndex,
+                             valueType=ValueType.Scalar,
+                             time=0.0,
+                             units=None,
+                             objectID=objID.OBJ_CONE)
+    mieApp.setProperty(hmri)
+
     # Number of rays
     nRays = Property.Property(value=100,
                               propID=PropertyID.PID_NumberOfRays,
@@ -75,25 +90,25 @@ if __name__ == '__main__':
                            valueType=ValueType.Scalar,
                            time=0.0,
                            units=None,
-                           objectID=objID.OBJ_CONE)
+                           objectID=objID.OBJ_PARTICLE_TYPE_1)
     tracerApp.setProperty(em)
 
     # Excitation spectrum
     ex = Property.Property(value=ex_em_import.getEx(),
-                           propID=PropertyID.PID_EmissionSpectrum,
+                           propID=PropertyID.PID_ExcitationSpectrum,
                            valueType=ValueType.Scalar,
                            time=0.0,
                            units=None,
-                           objectID=objID.OBJ_CONE)
+                           objectID=objID.OBJ_PARTICLE_TYPE_1)
     tracerApp.setProperty(ex)
 
     # Absorption spectrum
     aabs = Property.Property(value=ex_em_import.getAbs(),
-                             propID=PropertyID.PID_EmissionSpectrum,
+                             propID=PropertyID.PID_AsorptionSpectrum,
                              valueType=ValueType.Scalar,
                              time=0.0,
                              units=None,
-                             objectID=objID.OBJ_CONE)
+                             objectID=objID.OBJ_PARTICLE_TYPE_1)
     tracerApp.setProperty(aabs)
 
     logger.info('Properties set!')

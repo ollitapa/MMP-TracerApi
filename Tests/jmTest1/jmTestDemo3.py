@@ -1,4 +1,4 @@
-import clientConfig as cConf
+import clientConfig3 as cConf
 from mmp_tracer_api import objID
 from comsol_api import MMPComsolDummy
 from mupif import *
@@ -44,15 +44,15 @@ else:
         comsolApp = MMPComsolDummy('localhost')
 
         # Connect functions
-
         pScat = mieApp.getProperty(PropertyID.PID_ScatteringCrossSections, 0,
-                               objectID=objID.OBJ_PARTICLE_TYPE_1)
+                           objID.OBJ_PARTICLE_TYPE_1)
+
         pPhase = mieApp.getProperty(PropertyID.PID_InverseCumulativeDist, 0,
-                                objectID=objID.OBJ_PARTICLE_TYPE_1)
+                            objID.OBJ_PARTICLE_TYPE_1)
 
 
-        tracerApp.setProperty(pScat)
-        tracerApp.setProperty(pPhase)
+        tracerApp.setFunction(pScat)
+        tracerApp.setFunction(pPhase)
 
         # Connect fields
         fTemp = comsolApp.getField(FieldID.FID_Temperature, 0)
@@ -67,7 +67,6 @@ else:
         import numpy as np
 
         a = {}
-   
         A = np.loadtxt('../../../mmp_tracer_api/data/EM_GREEN.dat')
         a['wavelengths'] = A[:, 0]
         a['intensities'] = A[:, 1]

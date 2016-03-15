@@ -33,7 +33,7 @@ tracerTunnel = PyroUtil.sshTunnel(remoteHost=cConf.tracerServer,
                                   sshClient=cConf.sshClient,
                                   options=cConf.options,
                                   sshHost=cConf.sshHost)
-'''
+
 comsolTunnel = PyroUtil.sshTunnel(remoteHost=cConf.mieServer,
                                   userName=cConf.mieUser,
                                   localPort=cConf.mieNatPort,
@@ -41,7 +41,7 @@ comsolTunnel = PyroUtil.sshTunnel(remoteHost=cConf.mieServer,
                                   sshClient=cConf.sshClient,
                                   options=cConf.options,
                                   sshHost=cConf.sshHost)
-'''
+
 
 
 mieApp = PyroUtil.connectApp(ns, cConf.mieID)
@@ -49,12 +49,12 @@ tracerApp = PyroUtil.connectApp(ns, cConf.tracerID)
 comsolApp = PyroUtil.connectApp(ns, cConf.comsolID)
 
 # Point data conversion to false. Speeds up testing
-tracerApp._convertPointData = False
+#tracerApp._convertPointData = False #does not work over pyro4... not exposed
 
 logger.info('Applications loaded:')
 print(mieApp)
 print(tracerApp)
-# print(comsolApp)
+print(comsolApp)
 
 
 # Connect fields
@@ -68,6 +68,51 @@ tracerApp.setField(fHeatVol)
 logger.info('Fields connected')
 
 # Connect properties
+
+# Emission spectrum
+import numpy as np
+
+a = {}
+A = np.loadtxt('../../mmp_tracer_api/data/EM_GREEN.dat')
+a['wavelengths'] = A[:, 0]
+a['intensities'] = A[:, 1]
+em = Property.Property(value=a,
+                       propID=PropertyID.PID_EmissionSpectrum,
+                       valueType=ValueType.Scalar,
+                       time=0.0,
+                       units=None,
+                       objectID=objID.OBJ_PARTICLE_TYPE_1)
+tracerApp.setProperty(em)
+
+# Excitation spectrum
+b = {}
+B = np.loadtxt('../../mmp_tracer_api/data/EX_GREEN.dat')
+b['wavelengths'] = B[:, 0]
+b['intensities'] = B[:, 1]
+ex = Property.Property(value=b,
+                       propID=PropertyID.PID_ExcitationSpectrum,
+                       valueType=ValueType.Scalar,
+                       time=0.0,
+                       units=None,
+                       objectID=objID.OBJ_PARTICLE_TYPE_1)
+tracerApp.setProperty(ex)
+
+# Absorption spectrum
+c = {}
+C = np.loadtxt('../../mmp_tracer_api/data/Abs_GREEN.dat')
+c['wavelengths'] = C[:, 0]
+c['intensities'] = C[:, 1]
+aabs = Property.Property(value=c,
+                         propID=PropertyID.PID_AsorptionSpectrum,
+                         valueType=ValueType.Scalar,
+                         time=0.0,
+                         units=None,
+                         objectID=objID.OBJ_PARTICLE_TYPE_1)
+tracerApp.setProperty(aabs)
+
+
+
+
 # Particle density
 logger.info('Setting Properties...')
 vDens = 0.00000003400
@@ -109,8 +154,8 @@ logger.info('Props connected')
 tracerApp.solveStep(0, runInBackground=False)
 
 # Connect tracer back to comsol
-fHeatSurf = tracerApp.getField(FieldID.FID_HeatSourceSurf, 0)
-fHeatVol = tracerApp.getField(FieldID.FID_HeatSourceVol, 0)
+fHeatSurf = tracerApp.getField(FieldID.FID_Thermal_absorption_surface, 0)
+fHeatVol = tracerApp.getField(FieldID.FID_Thermal_absorption_volume, 0)
 comsolApp.setField(fHeatSurf)
 comsolApp.setField(fHeatVol)
 

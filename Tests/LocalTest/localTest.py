@@ -73,6 +73,53 @@ if __name__ == '__main__':
                               objectID=objID.OBJ_CONE)
     tracerApp.setProperty(nRays)
 
+    #from pkg_resources import resource_filename
+
+    # Emission spectrum
+    import numpy as np
+
+    #a = {'wavelengths': None, 'intensities': None}
+    a = {}
+    #A=np.loadtxt(resource_filename(__name__, "data/InvCumul_EM_GREEN.dat"))
+    A = np.loadtxt('../../../mmp_tracer_api/data/EM_GREEN.dat')
+    a['wavelengths'] = A[:, 0]
+    a['intensities'] = A[:, 1]
+    em = Property.Property(value=a,
+                           propID=PropertyID.PID_EmissionSpectrum,
+                           valueType=ValueType.Scalar,
+                           time=0.0,
+                           units=None,
+                           objectID=objID.OBJ_PARTICLE_TYPE_1)
+    tracerApp.setProperty(em)
+
+    # Excitation spectrum
+    b = {}
+    B = np.loadtxt('../../../mmp_tracer_api/data/EX_GREEN.dat')
+    b['wavelengths'] = B[:, 0]
+    b['intensities'] = B[:, 1]
+    ex = Property.Property(value=b,
+                           propID=PropertyID.PID_ExcitationSpectrum,
+                           valueType=ValueType.Scalar,
+                           time=0.0,
+                           units=None,
+                           objectID=objID.OBJ_PARTICLE_TYPE_1)
+    tracerApp.setProperty(ex)
+
+    # Absorption spectrum
+    c = {}
+    C = np.loadtxt('../../../mmp_tracer_api/data/Abs_GREEN.dat')
+    c['wavelengths'] = C[:, 0]
+    c['intensities'] = C[:, 1]
+    aabs = Property.Property(value=c,
+                             propID=PropertyID.PID_AsorptionSpectrum,
+                             valueType=ValueType.Scalar,
+                             time=0.0,
+                             units=None,
+                             objectID=objID.OBJ_PARTICLE_TYPE_1)
+    tracerApp.setProperty(aabs)
+
+
+
     logger.info('Properties set!')
 
     # Solve

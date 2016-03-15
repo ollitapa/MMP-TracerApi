@@ -19,7 +19,7 @@ print("simple brute force optimization")
 params = ()
 
 #value that we target in the simulation:
-x = (2000,) #CCT: 2700...5000
+x = (4000,) #CCT: 2700...5000
 
 
 #function that runs the simulation and returns the simulated result value xsim:
@@ -34,7 +34,24 @@ def xsim(z, *params):
     tracerApp._convertPointData = False
 
     # Set default LED json
-    tracerApp.setDefaultInputFile('./DefaultLED.json')
+    tracerApp.setDefaultInputFile('./DefaultLED3.json')
+
+    #Set refractive indexes to mieApp:
+    pri = Property.Property(1.83,
+                            PropertyID.PID_RefractiveIndex,
+                            valueType=ValueType.Scalar,
+                            time=0.0,
+                            units=None,
+                            objectID=objID.OBJ_PARTICLE_TYPE_1)
+    mieApp.setProperty(pri)
+    
+    hmri = Property.Property(1.55, PropertyID.PID_RefractiveIndex,
+                             valueType=ValueType.Scalar,
+                             time=0.0,
+                             units=None,
+                             objectID=objID.OBJ_CONE)
+    mieApp.setProperty(hmri)
+
 
     # Connect functions
     pScat = mieApp.getProperty(PropertyID.PID_ScatteringCrossSections, 0,
@@ -42,9 +59,10 @@ def xsim(z, *params):
     pPhase = mieApp.getProperty(PropertyID.PID_InverseCumulativeDist, 0,
                                 objectID=objID.OBJ_PARTICLE_TYPE_1)
 
+    
     tracerApp.setProperty(pScat)
     tracerApp.setProperty(pPhase)
-
+    
     # Connect fields
     fTemp = comsolApp.getField(FieldID.FID_Temperature, 0)
     fHeat = comsolApp.getField(FieldID.FID_Thermal_absorption_volume, 0)
@@ -63,8 +81,6 @@ def xsim(z, *params):
     w_min = 100.0
     w_num = 1000
 
-    # Weight fractions
-    #weight_frac = np.array([24]) / 100.0 #CHANGING PARAMETER!See below
 
     # Particle density
     dens_p = 5.0  # g/cm3
@@ -95,6 +111,16 @@ def xsim(z, *params):
                               objectID=objID.OBJ_CONE)
     tracerApp.setProperty(pRays)
     
+
+    
+    n_particles = Property.Property(value=1,
+                                    propID=PropertyID.PID_NumberOfFluorescentParticles,
+                                    valueType=ValueType.Scalar,
+                                    time=0.0,
+                                    units=None,
+                                    objectID=objID.OBJ_CONE)
+    tracerApp.setProperty(n_particles)
+
     # Emission spectrum
     em = Property.Property(value=ex_em_import.getEm(),
                            propID=PropertyID.PID_EmissionSpectrum,
@@ -121,12 +147,15 @@ def xsim(z, *params):
                              units=None,
                              objectID=objID.OBJ_PARTICLE_TYPE_1)
     tracerApp.setProperty(aabs)
+    
 
     #logger.info('Properties set!')
 
     # Solve Mie
     mieApp.solveStep(0)
 
+    #TODO: Need a new function to calculate particles_in_um3 if more than 1 particle type... see n_particle_test.py
+    particles_in_um3 = 0.0
     for w_frac in weight_frac:
         particles_in_um3 =\
             st.particlesInVolumeLogNormWeightTotal(w_frac, dens_p,
@@ -134,6 +163,7 @@ def xsim(z, *params):
                                                    particle_diameters=d)
 
     # Particle density
+    #NOTE: If more than 1 particle type, use ValueType.Vector !
     vDens = particles_in_um3
     pDens = Property.Property(value=vDens,
                               propID=PropertyID.PID_ParticleNumberDensity,
@@ -182,9 +212,9 @@ def f(z, *params):
 
 #ranges for each changing parameter:
 #range for z=weight_fraction, 0...100
-start = 10
-stop = 20
-step = 1
+start = 20
+stop = 31
+step = 10
 xs = []
 ys = []
 

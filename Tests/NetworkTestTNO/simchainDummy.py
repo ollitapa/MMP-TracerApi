@@ -72,25 +72,25 @@ em = Property.Property(value=ex_em_import.getEm(),
                        valueType=ValueType.Scalar,
                        time=0.0,
                        units=None,
-                       objectID=objID.OBJ_CONE)
+                       objectID=objID.OBJ_PARTICLE_TYPE_1)
 tracerApp.setProperty(em)
 
 # Excitation spectrum
 ex = Property.Property(value=ex_em_import.getEx(),
-                       propID=PropertyID.PID_EmissionSpectrum,
+                       propID=PropertyID.PID_ExcitationSpectrum,
                        valueType=ValueType.Scalar,
                        time=0.0,
                        units=None,
-                       objectID=objID.OBJ_CONE)
+                       objectID=objID.OBJ_PARTICLE_TYPE_1)
 tracerApp.setProperty(ex)
 
 # Absorption spectrum
 aabs = Property.Property(value=ex_em_import.getAbs(),
-                         propID=PropertyID.PID_EmissionSpectrum,
+                         propID=PropertyID.PID_AsorptionSpectrum,
                          valueType=ValueType.Scalar,
                          time=0.0,
                          units=None,
-                         objectID=objID.OBJ_CONE)
+                         objectID=objID.OBJ_PARTICLE_TYPE_1)
 tracerApp.setProperty(aabs)
 
 
