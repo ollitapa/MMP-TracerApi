@@ -90,7 +90,7 @@ def interpolateFields(fields, time, fieldID, method='linear'):
                                     units=f_min.getUnits(),
                                     values=newValues,
                                     time=time,
-                                    fieldType=Field.FieldType.FT_cellBased)  # TODO: hack until Field.py exposes fieldType for mupif.
+                                    fieldType=f_min.getFieldType())
 
     # Return
     return(interpolatedField)
@@ -157,7 +157,7 @@ def interpolateProperty(properties, time, propertyID, objectID,
     # Create new property.
     newProp = Property.Property(value=newValue,
                                 propID=propertyID,
-                                valueType=p_min.valueType,  # TODO: Fix for pyro4
+                                valueType=p_min.getValueType(),
                                 time=time,
                                 units=p_min.getUnits(),
                                 objectID=objectID)

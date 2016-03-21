@@ -207,7 +207,7 @@ class MMPRaytracer(Application):
         # Set the new property to container
         key = (newProp.getPropertyID(),
                newProp.getObjectID(),
-               newProp.getTime())  
+               newProp.getTime())
         self.properties.set_value(key, newProp)
 
     def getMesh(self, tstep):
@@ -428,8 +428,7 @@ class MMPRaytracer(Application):
                     parent[3]["particleDensities"] = [prop.getValue()]
                 else:
                     parent[3]["particleDensities"] = prop.getValue()
-                   
-            
+
             elif(key[0] == PropertyID.PID_ScatteringCrossSections and
                  key[2] == tstep):
                 pass
@@ -439,17 +438,18 @@ class MMPRaytracer(Application):
         # Datafiles:
         parent = self._jsondata['materials']
 
-        
-        n_particle_key = (PropertyID.PID_NumberOfFluorescentParticles, objID.OBJ_CONE, tstep)
+        n_particle_key = (
+            PropertyID.PID_NumberOfFluorescentParticles, objID.OBJ_CONE, tstep)
         n_particles = self.properties[n_particle_key]
         parent[3]['numberOfFluorescentParticles'] = n_particles.getValue()
         print("n_particles=", n_particles.getValue(),
               parent[3]['numberOfFluorescentParticles'])
 
-        #Phosphor efficiences:
+        # Phosphor efficiences:
         if PropertyID.PID_PhosphorEfficiency in\
                 self.properties.index.get_level_values('propertyID'):
-            effs = self.properties.xs((PropertyID.PID_PhosphorEfficiency, tstep), level=('propertyID', 'tstep'))
+            effs = self.properties.xs(
+                (PropertyID.PID_PhosphorEfficiency, tstep), level=('propertyID', 'tstep'))
 
             efflist = []
             for i, row in effs.iteritems():
@@ -674,7 +674,7 @@ class MMPRaytracer(Application):
         # These should be same with MieAPI!! Constants, hardcoded in both...
         w_max = 1100.0
         w_min = 100.0
-        w_num = 1001#10
+        w_num = 1001  # 10
 
         wave = np.linspace(w_min, w_max, w_num)
 
